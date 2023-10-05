@@ -1,0 +1,30 @@
+## Copyright (C) 2023 Advanced Micro Devices, Inc.
+## SPDX-License-Identifier: MIT
+
+set CompName [get_property PARAM_VALUE.Component_Name]
+set TBName ${CompName}_testtb
+set DesignName ${CompName}_testbd
+set WrapperName ${DesignName}_wrapper
+set FILEPATH "simulation/${WrapperName}.sv"
+set fid [add_ipfile ${FILEPATH}]
+puts_ipfile $fid "`timescale 1 ps / 1 ps                               "
+puts_ipfile $fid "module $WrapperName                 "
+puts_ipfile $fid "   (aclk_0,                                          "
+puts_ipfile $fid "    aresetn_0);                                      "
+puts_ipfile $fid "  input aclk_0;                                      "
+puts_ipfile $fid "  input aresetn_0;                                   "
+puts_ipfile $fid "  wire aclk_0;                                       "
+puts_ipfile $fid "  wire aresetn_0;                                    "
+puts_ipfile $fid "  $DesignName ${DesignName}_i      "
+puts_ipfile $fid "       (.aclk_0(aclk_0),                             "
+puts_ipfile $fid "        .aresetn_0(aresetn_0),                       "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_function_number(0),       "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_read_data(),              "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_read_data_valid(),        "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_read_received(1'b0),      "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_register_number(0),       "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_write_byte_enable(0),     "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_write_data(0),            "
+puts_ipfile $fid "        .s_pcie4_cfg_ext_0_write_received(1'b0));    "
+puts_ipfile $fid "endmodule                                            "
+close_ipfile $fid

@@ -36,7 +36,7 @@ clean: clean-subdirs
 	-$(RM) .Xil _sds *.xml *.dat *.hpfm iprepo *.xtxt *.xsa
 	-$(RM) sd_card *.log *.rpt .ipcache
 	-$(RM) *.info
-	-$(RM) *.link_summary* *.package_summary*
+	-$(RM) *.link_summary* *.package_summary* *.ltx
 
 clean-subdirs:
 	$(MAKE) -C kernel clean

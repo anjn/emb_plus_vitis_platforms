@@ -45,7 +45,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xcve2302-sfva784-2MP-e-S
+   create_project project_1 myproj -part xcve2302-sfva784-2MP-e-S-es1
 }
 
 
@@ -125,15 +125,15 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\
-xilinx.com:ip:util_ff:1.0\
-xilinx.com:ip:xlconstant:1.1\
-xilinx.com:ip:axi_dbg_hub:2.0\
-xilinx.com:ip:axi_gpio:2.0\
-xilinx.com:ip:smartconnect:1.0\
-xilinx.com:ip:axi_noc:1.0\
-xilinx.com:ip:ai_engine:2.0\
-xilinx.com:ip:xlconcat:2.1\
-xilinx.com:ip:proc_sys_reset:5.0\
+xilinx.com:ip:util_ff:*\
+xilinx.com:ip:xlconstant:*\
+xilinx.com:ip:axi_dbg_hub:*\
+xilinx.com:ip:axi_gpio:*\
+xilinx.com:ip:smartconnect:*\
+xilinx.com:ip:axi_noc:*\
+xilinx.com:ip:ai_engine:*\
+xilinx.com:ip:xlconcat:*\
+xilinx.com:ip:proc_sys_reset:*\
 "
 
    set list_ips_missing ""
@@ -460,16 +460,11 @@ proc create_root_design { parentCell } {
    ] $BLP_M_M02_INI_0
   set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M02_INI_0]
 
-  set BLP_M_M03_INI_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:inimm_rtl:1.0 BLP_M_M03_INI_0 ]
-  set_property -dict [ list \
-   CONFIG.INI_STRATEGY {load} \
-   ] $BLP_M_M03_INI_0
-  set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M03_INI_0]
-
   set BLP_S_INI_DBG_00 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:inimm_rtl:1.0 BLP_S_INI_DBG_00 ]
   set_property -dict [ list \
    CONFIG.INI_STRATEGY {load} \
    ] $BLP_S_INI_DBG_00
+  set_property APERTURES {{0x202_0580_0000 2M}} $BLP_S_INI_DBG_00
 
 
   # Create ports
@@ -568,7 +563,7 @@ proc create_root_design { parentCell } {
   set_property -dict [list \
     CONFIG.NUM_CLKS {0} \
     CONFIG.NUM_MI {0} \
-    CONFIG.NUM_NMI {4} \
+    CONFIG.NUM_NMI {3} \
     CONFIG.NUM_NSI {0} \
     CONFIG.NUM_SI {0} \
   ] $axi_noc_kernel0
@@ -588,11 +583,6 @@ proc create_root_design { parentCell } {
    CONFIG.INI_STRATEGY {load} \
    CONFIG.APERTURES {{0x0 2G} {0x500_0000_0000 6G}} \
  ] [get_bd_intf_pins /axi_noc_kernel0/M02_INI]
-
-  set_property -dict [ list \
-   CONFIG.INI_STRATEGY {load} \
-   CONFIG.APERTURES {{0x0 2G} {0x500_0000_0000 6G}} \
- ] [get_bd_intf_pins /axi_noc_kernel0/M03_INI]
 
   # Create instance: kernel_interrupt
   create_hier_cell_kernel_interrupt [current_bd_instance .] kernel_interrupt
@@ -655,7 +645,7 @@ proc create_root_design { parentCell } {
 
 
   set_property -dict [ list \
-   CONFIG.APERTURES {{0x202_0000_0000 1G}} \
+   CONFIG.APERTURES {{0x202_0000_0000 2M}} \
    CONFIG.CATEGORY {pl} \
  ] [get_bd_intf_pins /axi_noc_h2c/M00_AXI]
 
@@ -673,7 +663,6 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net M00_INI_0 [get_bd_intf_ports BLP_M_M00_INI_0] [get_bd_intf_pins axi_noc_kernel0/M00_INI]
   connect_bd_intf_net -intf_net M01_INI_0 [get_bd_intf_ports BLP_M_M01_INI_0] [get_bd_intf_pins axi_noc_kernel0/M01_INI]
   connect_bd_intf_net -intf_net M02_INI_0 [get_bd_intf_ports BLP_M_M02_INI_0] [get_bd_intf_pins axi_noc_kernel0/M02_INI]
-  connect_bd_intf_net -intf_net M03_INI_0 [get_bd_intf_ports BLP_M_M03_INI_0] [get_bd_intf_pins axi_noc_kernel0/M03_INI]
   connect_bd_intf_net -intf_net axi_ic_user_M00_AXI [get_bd_intf_pins axi_ic_user/M00_AXI] [get_bd_intf_pins axi_gpio_null_user/S_AXI]
   connect_bd_intf_net -intf_net axi_noc_aie_prog_M00_AXI [get_bd_intf_pins axi_noc_aie_prog/M00_AXI] [get_bd_intf_pins ai_engine_0/S00_AXI]
   connect_bd_intf_net -intf_net axi_noc_h2c_M00_AXI [get_bd_intf_pins axi_dbg_hub/S_AXI] [get_bd_intf_pins axi_noc_h2c/M00_AXI]
@@ -716,15 +705,20 @@ proc create_root_design { parentCell } {
 
   # Create PFM attributes
   set_property PFM_NAME {xilinx.com:rave_ve2302:ve2302_pcie_qdma:1.0} [get_files [current_bd_design].bd]
-  set_property PFM.CLOCK {blp_s_aclk_kernel_00 {id "1" is_default "true" proc_sys_reset "/reset_controllers/reset_sync_kernel0" status "fixed" freq_hz "299996999"}} [get_bd_ports /blp_s_aclk_kernel_00]
-  set_property PFM.CLOCK {blp_s_aclk_kernel_01 {id "2" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_kernel1" status "fixed" freq_hz "249997499"}} [get_bd_ports /blp_s_aclk_kernel_01]
+  set_property PFM.CLOCK {blp_s_aclk_kernel_00 {id "1" is_default "true" proc_sys_reset "/reset_controllers/reset_sync_kernel0" status "scalable" freq_hz "299996999"}} [get_bd_ports /blp_s_aclk_kernel_00]
+  set_property PFM.CLOCK {blp_s_aclk_kernel_01 {id "2" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_kernel1" status "scalable" freq_hz "249997499"}} [get_bd_ports /blp_s_aclk_kernel_01]
+  set_property PFM.CLOCK {blp_s_aclk_ctrl_00 {id "0" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_fixed" status "fixed" freq_hz "99999001"}} [get_bd_ports /blp_s_aclk_ctrl_00]
+
   set_property PFM.AXI_PORT {M01_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M02_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M03_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M04_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M05_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M06_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M07_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M08_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M09_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M10_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"}} [get_bd_cells /axi_ic_user]
-  set_property PFM.AXI_PORT {S00_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S01_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S02_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S03_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"}} [get_bd_cells /axi_noc_kernel0]
+  set_property PFM.AXI_PORT {S00_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S01_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S02_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"}} [get_bd_cells /axi_noc_kernel0]
   set_property PFM.IRQ {In0 {id 0 range 32}} [get_bd_cells /kernel_interrupt/xlconcat_0]
 
   # System DPA attributes
   set_property HDL_ATTRIBUTE.DPA_AXILITE_MASTER primary [get_bd_cells /axi_ic_user]
   set_property HDL_ATTRIBUTE.DPA_TRACE_SLAVE true [get_bd_cells /axi_noc_kernel0]
+
+  # Used for metadata generation
+  set_property HDL_ATTRIBUTE.DFX_FUNCTION_ID 0 [current_bd_design]
 
   validate_bd_design
   save_bd_design

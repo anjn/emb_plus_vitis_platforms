@@ -2251,15 +2251,20 @@ proc create_hier_cell_blp { parentCell nameHier } {
     CONFIG.pf0_bar0_type_qdma {AXI_Bridge_Master} \
     CONFIG.pf0_bar2_64bit_qdma {true} \
     CONFIG.pf0_bar2_prefetchable_qdma {true} \
+    CONFIG.pf0_bar2_scale_qdma {Kilobytes} \
     CONFIG.pf0_bar2_size_qdma {128} \
     CONFIG.pf0_bar2_type_qdma {AXI_Bridge_Master} \
     CONFIG.pf0_class_code_base_qdma {12} \
     CONFIG.pf0_class_code_sub_qdma {00} \
     CONFIG.pf0_device_id {5700} \
     CONFIG.pf0_pciebar2axibar_0 {0x0000020100000000} \
+    CONFIG.pf0_pciebar2axibar_2 {0x0000000000000000} \
     CONFIG.pf0_subsystem_id {000e} \
     CONFIG.pf1_bar0_64bit_qdma {true} \
     CONFIG.pf1_bar0_prefetchable_qdma {true} \
+    CONFIG.pf1_bar0_scale_qdma {Kilobytes} \
+    CONFIG.pf1_bar0_size_qdma {256} \
+    CONFIG.pf1_bar0_type_qdma {DMA} \
     CONFIG.pf1_bar2_64bit_qdma {true} \
     CONFIG.pf1_bar2_prefetchable_qdma {true} \
     CONFIG.pf1_bar2_scale_qdma {Megabytes} \
@@ -2268,6 +2273,7 @@ proc create_hier_cell_blp { parentCell nameHier } {
     CONFIG.pf1_class_code_base_qdma {12} \
     CONFIG.pf1_class_code_sub_qdma {00} \
     CONFIG.pf1_device_id {5701} \
+    CONFIG.pf1_pciebar2axibar_0 {0x0000000000000000} \
     CONFIG.pf1_pciebar2axibar_2 {0x0000020200000000} \
     CONFIG.pf1_subsystem_id {000e} \
     CONFIG.pl_link_cap_max_link_speed {8.0_GT/s} \

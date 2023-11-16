@@ -123,7 +123,7 @@ pipeline {
         label 'Build_Master'
     }
     environment {
-        deploy_branch="master"
+        deploy_branch="main"
         tool_release="2023.1"
         tool_build="daily_latest"
         auto_branch="2022.1"

@@ -111,7 +111,7 @@ set_property platform.platform_state                  "impl"                  [c
 set_property platform.uses_pr                         true                    [current_project]
 set_property platform.extensible                      true                    [current_project]
 set_property platform.pcie_id_vendor                  "0x10ee"                [current_project]
-set_property platform.pcie_id_device                  "0x5094"                [current_project]
+set_property platform.pcie_id_device                  "0x5700"                [current_project]
 set_property platform.pcie_id_subsystem               "0x000e"                [current_project]
 set_property platform.dr_inst_path                    "${baseBD}_i/${userBD}" [current_project]
 set_property platform.design_intent.embedded          false                   [current_project]

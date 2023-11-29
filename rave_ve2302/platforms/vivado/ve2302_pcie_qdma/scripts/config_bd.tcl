@@ -1440,7 +1440,7 @@ proc create_hier_cell_blp_logic { parentCell nameHier } {
   set pfm_irq_ctlr [ create_bd_cell -type ip -vlnv xilinx.com:ip:pfm_irq_ctlr pfm_irq_ctlr ]
   set_property -dict [list \
     CONFIG.NUM_OF_IRQ_PF0 {1} \
-    CONFIG.NUM_OF_IRQ_PF1 {4} \
+    CONFIG.NUM_OF_IRQ_PF1 {1} \
     CONFIG.NUM_OF_PFS {2} \
     CONFIG.CPM_TYPE {0} \
   ] $pfm_irq_ctlr
@@ -1467,12 +1467,6 @@ proc create_hier_cell_blp_logic { parentCell nameHier } {
 
   # Create instance: gcq_u2a_0, and set properties
   set gcq_u2a_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:cmd_queue gcq_u2a_0 ]
-
-  # Create instance: xlconcat_pcie_irq, and set properties
-  set xlconcat_pcie_irq [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat xlconcat_pcie_irq ]
-  set_property -dict [ list \
-   CONFIG.NUM_PORTS {4} \
- ] $xlconcat_pcie_irq
 
   # Create instance: xlconcat_irq_vec, and set properties
   set xlconcat_irq_vec [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat xlconcat_irq_vec ]
@@ -1596,7 +1590,7 @@ set axi_intc_gcq_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc axi_
   connect_bd_net -net force_reset_result_1 [get_bd_pins force_reset_result] [get_bd_pins base_clocking/force_reset_result]
   connect_bd_net -net gate_user_or_Res [get_bd_pins gate_user_or/Res] [get_bd_pins irq_firewall_user]
   connect_bd_net -net gcq_a2r_irq [get_bd_pins gcq_r2a/irq_cq] [get_bd_pins irq_gcq_a2r]
-  connect_bd_net -net gcq_a2u_irq_0 [get_bd_pins gcq_u2a_0/irq_cq] [get_bd_pins xlconcat_pcie_irq/In0]
+  connect_bd_net -net gcq_a2u_irq_0 [get_bd_pins gcq_u2a_0/irq_cq] [get_bd_pins pfm_irq_ctlr/irq_in_1]
   connect_bd_net -net gcq_apu_irq [get_bd_pins axi_intc_gcq_apu/irq] [get_bd_pins irq_gcq_apu]
   connect_bd_net -net gcq_apu_irq_concat [get_bd_pins xlconcat_gcq_apu/dout] [get_bd_pins axi_intc_gcq_apu/intr]
   connect_bd_net -net gcq_m2r_irq [get_bd_pins gcq_m2r/irq_sq] [get_bd_pins irq_gcq_m2r]
@@ -1659,7 +1653,6 @@ set axi_intc_gcq_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc axi_
   connect_bd_net -net ulp_clocking_ext_tog_ctrl_kernel_01_enable [get_bd_pins ext_tog_ctrl_kernel_01_enable] [get_bd_pins ulp_clocking/ext_tog_ctrl_kernel_01_enable]
   connect_bd_net -net ulp_clocking_ext_tog_ctrl_kernel_01_in [get_bd_pins ext_tog_ctrl_kernel_01_in] [get_bd_pins ulp_clocking/ext_tog_ctrl_kernel_01_in]
   connect_bd_net -net ulp_clocking_ext_tog_ctrl_kernel_01_out [get_bd_pins ulp_clocking/ext_tog_ctrl_kernel_01_out] [get_bd_pins ext_tog_ctrl_kernel_01_out]
-  connect_bd_net -net xlconcat_pcie_irq_dout [get_bd_pins xlconcat_pcie_irq/dout] [get_bd_pins pfm_irq_ctlr/irq_in_1]
 
   # Restore current instance
   current_bd_instance $oldCurInst

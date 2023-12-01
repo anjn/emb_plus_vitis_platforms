@@ -138,7 +138,7 @@ pipeline {
         skipDefaultCheckout true
     }
     triggers {
-        cron(env.BRANCH_NAME == 'master' ? 'H 21 * * *' : '')
+        cron(env.BRANCH_NAME == 'main' ? 'H 21 * * *' : '')
     }
     stages {
         stage('Clone Repos') {

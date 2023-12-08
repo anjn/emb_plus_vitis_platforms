@@ -9,7 +9,7 @@ XSCT = $(XILINX_VITIS)/bin/xsct
 JOBS ?= 8
 
 PLATFORM ?= ve2302_pcie_qdma
-VERSION ?= 202310_1
+VERSION ?= 202320_1
 
 PFM_DIR = xilinx_$(PLATFORM)_$(VERSION)
 PFM_PRJ_DIR = xsct/$(VIV_XSA_NAME)/$(VIV_XSA_NAME)/export/xilinx_$(PLATFORM)_$(PLATFORM)_1_0

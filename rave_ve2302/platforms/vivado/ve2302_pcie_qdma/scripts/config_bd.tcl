@@ -287,15 +287,6 @@ proc create_hier_cell_qdma_0_support { parentCell nameHier } {
   create_bd_pin -dir O -type clk user_clk
   create_bd_pin -dir O user_lnk_up
   create_bd_pin -dir O -type rst user_reset
-  create_bd_pin -dir O cfg_wr_req_bme_vld
-  create_bd_pin -dir O cfg_wr_req_flr_vld
-  create_bd_pin -dir O cfg_wr_req_msi_vld
-  create_bd_pin -dir O cfg_wr_req_msix_vld
-  create_bd_pin -dir O -from 15 -to 0 cfg_wr_req_func_num
-  create_bd_pin -dir O -from 3 -to 0 cfg_wr_req_out_value
-  create_bd_pin -dir O cfg_wr_req_vfe_vld
-  create_bd_pin -dir I -from 0 -to 0 cfg_flr_done
-  create_bd_pin -dir I -from 15 -to 0 cfg_flr_done_func_num
 
   # Create instance: gt_quad_0, and set properties
   set gt_quad_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:gt_quad_base gt_quad_0 ]
@@ -309,18 +300,19 @@ refclk_PROT0_R0_100_MHz_unique1} \
   # Create instance: pcie, and set properties
   set pcie [ create_bd_cell -type ip -vlnv xilinx.com:ip:pcie_versal pcie ]
   set_property -dict [list \
+    CONFIG.mode_selection {Advanced} \
     CONFIG.AXISTEN_IF_CQ_ALIGNMENT_MODE {Address_Aligned} \
     CONFIG.AXISTEN_IF_RQ_ALIGNMENT_MODE {DWORD_Aligned} \
-    CONFIG.MSI_X_OPTIONS {MSI-X_Internal} \
+    CONFIG.MSI_X_OPTIONS {MSI-X_External} \
     CONFIG.PF0_AER_CAP_ECRC_GEN_AND_CHECK_CAPABLE {false} \
     CONFIG.PF0_AER_ENABLED {true} \
     CONFIG.PF0_DEVICE_ID {5700} \
     CONFIG.PF0_DEV_CAP_FUNCTION_LEVEL_RESET_CAPABLE {false} \
     CONFIG.PF0_INTERRUPT_PIN {INTA} \
     CONFIG.PF0_LINK_STATUS_SLOT_CLOCK_CONFIG {true} \
-    CONFIG.PF0_MSIX_CAP_PBA_BIR {BAR_1:0} \
+    CONFIG.PF0_MSIX_CAP_PBA_BIR {BAR_3:2} \
     CONFIG.PF0_MSIX_CAP_PBA_OFFSET {00034000} \
-    CONFIG.PF0_MSIX_CAP_TABLE_BIR {BAR_1:0} \
+    CONFIG.PF0_MSIX_CAP_TABLE_BIR {BAR_3:2} \
     CONFIG.PF0_MSIX_CAP_TABLE_OFFSET {00030000} \
     CONFIG.PF0_MSIX_CAP_TABLE_SIZE {01F} \
     CONFIG.PF0_PM_CAP_PMESUPPORT_D0 {true} \
@@ -343,36 +335,24 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.PF1_SUBSYSTEM_ID {000E} \
     CONFIG.PF1_SUBSYSTEM_VENDOR_ID {10EE} \
     CONFIG.PF1_Use_Class_Code_Lookup_Assistant {false} \
-    CONFIG.PF2_DEVICE_ID {0007} \
-    CONFIG.PF2_MSI_CAP_MULTIMSGCAP {1_vector} \
-    CONFIG.PF2_REVISION_ID {00} \
-    CONFIG.PF2_SUBSYSTEM_ID {0007} \
-    CONFIG.PF2_SUBSYSTEM_VENDOR_ID {10EE} \
-    CONFIG.PF2_Use_Class_Code_Lookup_Assistant {false} \
-    CONFIG.PF3_DEVICE_ID {B328} \
-    CONFIG.PF3_MSI_CAP_MULTIMSGCAP {1_vector} \
-    CONFIG.PF3_REVISION_ID {00} \
-    CONFIG.PF3_SUBSYSTEM_ID {0007} \
-    CONFIG.PF3_SUBSYSTEM_VENDOR_ID {10EE} \
-    CONFIG.PF3_Use_Class_Code_Lookup_Assistant {false} \
-    CONFIG.PF4_DEVICE_ID {B428} \
-    CONFIG.PF5_DEVICE_ID {B528} \
-    CONFIG.PF6_DEVICE_ID {B628} \
-    CONFIG.PF7_DEVICE_ID {B728} \
     CONFIG.PL_LINK_CAP_MAX_LINK_SPEED {8.0_GT/s} \
     CONFIG.PL_LINK_CAP_MAX_LINK_WIDTH {X4} \
     CONFIG.REF_CLK_FREQ {100_MHz} \
+    CONFIG.SRIOV_CAP_ENABLE {false} \
     CONFIG.TL_PF_ENABLE_REG {2} \
     CONFIG.acs_ext_cap_enable {true} \
+    CONFIG.all_speeds_all_sides {YES} \
     CONFIG.axisten_freq {125} \
     CONFIG.axisten_if_enable_client_tag {true} \
-    CONFIG.axisten_if_enable_msg_route_override {TRUE} \
+    CONFIG.axisten_if_enable_msg_route {1EFFF} \
+    CONFIG.axisten_if_enable_msg_route_override {true} \
     CONFIG.axisten_if_width {256_bit} \
     CONFIG.cfg_ext_if {true} \
     CONFIG.cfg_mgmt_if {true} \
     CONFIG.copy_pf0 {false} \
     CONFIG.dedicate_perst {true} \
     CONFIG.device_port_type {PCI_Express_Endpoint_device} \
+    CONFIG.en_dbg_descramble {false} \
     CONFIG.en_ext_clk {FALSE} \
     CONFIG.en_l23_entry {false} \
     CONFIG.en_parity {false} \
@@ -406,7 +386,7 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.pf0_bar2_enabled {true} \
     CONFIG.pf0_bar2_prefetchable {true} \
     CONFIG.pf0_bar2_scale {Kilobytes} \
-    CONFIG.pf0_bar2_size {128} \
+    CONFIG.pf0_bar2_size {256} \
     CONFIG.pf0_bar2_type {Memory} \
     CONFIG.pf0_bar4_enabled {false} \
     CONFIG.pf0_bar5_enabled {false} \
@@ -418,6 +398,7 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.pf0_dll_feature_cap_enabled {false} \
     CONFIG.pf0_expansion_rom_enabled {false} \
     CONFIG.pf0_margining_cap_enabled {false} \
+    CONFIG.pf0_msi_enabled {false} \
     CONFIG.pf0_msix_enabled {true} \
     CONFIG.pf0_pl16_cap_enabled {false} \
     CONFIG.pf0_sub_class_interface_menu {Other_memory_controller} \
@@ -440,65 +421,19 @@ refclk_PROT0_R0_100_MHz_unique1} \
     CONFIG.pf1_class_code_interface {00} \
     CONFIG.pf1_class_code_sub {00} \
     CONFIG.pf1_expansion_rom_enabled {false} \
+    CONFIG.pf1_msi_enabled {false} \
     CONFIG.pf1_msix_enabled {true} \
+    CONFIG.pf1_sriov_bar5_prefetchable {false} \
     CONFIG.pf1_sub_class_interface_menu {Other_memory_controller} \
     CONFIG.pf1_vendor_id {10EE} \
-    CONFIG.pf2_bar0_64bit {false} \
-    CONFIG.pf2_bar0_enabled {true} \
-    CONFIG.pf2_bar0_scale {Kilobytes} \
-    CONFIG.pf2_bar0_size {128} \
-    CONFIG.pf2_bar1_enabled {false} \
-    CONFIG.pf2_bar2_64bit {false} \
-    CONFIG.pf2_bar2_enabled {true} \
-    CONFIG.pf2_bar2_scale {Kilobytes} \
-    CONFIG.pf2_bar2_size {128} \
-    CONFIG.pf2_bar2_type {Memory} \
-    CONFIG.pf2_bar3_enabled {false} \
-    CONFIG.pf2_bar4_enabled {false} \
-    CONFIG.pf2_bar5_enabled {false} \
-    CONFIG.pf2_base_class_menu {Memory_controller} \
-    CONFIG.pf2_class_code_base {05} \
-    CONFIG.pf2_class_code_interface {00} \
-    CONFIG.pf2_class_code_sub {80} \
-    CONFIG.pf2_expansion_rom_enabled {false} \
-    CONFIG.pf2_msix_enabled {false} \
-    CONFIG.pf2_sub_class_interface_menu {Other_memory_controller} \
-    CONFIG.pf2_vendor_id {10EE} \
-    CONFIG.pf3_bar0_64bit {false} \
-    CONFIG.pf3_bar0_enabled {true} \
-    CONFIG.pf3_bar0_scale {Kilobytes} \
-    CONFIG.pf3_bar0_size {128} \
-    CONFIG.pf3_bar1_enabled {false} \
-    CONFIG.pf3_bar2_64bit {false} \
-    CONFIG.pf3_bar2_enabled {true} \
-    CONFIG.pf3_bar2_scale {Kilobytes} \
-    CONFIG.pf3_bar2_size {128} \
-    CONFIG.pf3_bar2_type {Memory} \
-    CONFIG.pf3_bar3_enabled {false} \
-    CONFIG.pf3_bar4_enabled {false} \
-    CONFIG.pf3_bar5_enabled {false} \
-    CONFIG.pf3_base_class_menu {Memory_controller} \
-    CONFIG.pf3_class_code_base {05} \
-    CONFIG.pf3_class_code_interface {00} \
-    CONFIG.pf3_class_code_sub {80} \
-    CONFIG.pf3_expansion_rom_enabled {false} \
-    CONFIG.pf3_msix_enabled {false} \
-    CONFIG.pf3_sub_class_interface_menu {Other_memory_controller} \
-    CONFIG.pf3_vendor_id {10EE} \
-    CONFIG.pf4_bar0_64bit {true} \
-    CONFIG.pf4_bar0_prefetchable {true} \
-    CONFIG.pf5_bar0_64bit {true} \
-    CONFIG.pf5_bar0_prefetchable {true} \
-    CONFIG.pf6_bar0_64bit {true} \
-    CONFIG.pf6_bar0_prefetchable {true} \
-    CONFIG.pf7_bar0_64bit {true} \
-    CONFIG.pf7_bar0_prefetchable {true} \
     CONFIG.pipe_line_stage {2} \
     CONFIG.pipe_sim {false} \
     CONFIG.replace_uram_with_bram {false} \
     CONFIG.sys_reset_polarity {ACTIVE_LOW} \
     CONFIG.userclk2_freq {500} \
     CONFIG.vendor_id {10EE} \
+    CONFIG.vfg0_msix_enabled {false} \
+    CONFIG.vfg1_msix_enabled {false} \
     CONFIG.warm_reboot_sbr_fix {false} \
     CONFIG.xlnx_ref_board {None} \
   ] $pcie
@@ -559,6 +494,7 @@ refclk_PROT0_R0_100_MHz_unique1} \
   connect_bd_intf_net -intf_net Conn9 [get_bd_intf_pins pcie/s_axis_cc] [get_bd_intf_pins s_axis_cc]
   connect_bd_intf_net -intf_net Conn10 [get_bd_intf_pins pcie/s_axis_rq] [get_bd_intf_pins s_axis_rq]
   connect_bd_intf_net -intf_net Conn11 [get_bd_intf_pins pcie/pcie_cfg_control] [get_bd_intf_pins pcie_cfg_control]
+  connect_bd_intf_net -intf_net Conn12 [get_bd_intf_pins pcie/pcie_cfg_external_msix_without_msi] [get_bd_intf_pins pcie_cfg_external_msix_without_msi]
   connect_bd_intf_net -intf_net Conn13 [get_bd_intf_pins pcie/pcie_cfg_mgmt] [get_bd_intf_pins pcie_cfg_mgmt]
   connect_bd_intf_net -intf_net Conn14 [get_bd_intf_pins pcie/pcie_cfg_status] [get_bd_intf_pins pcie_cfg_status]
   connect_bd_intf_net -intf_net Conn15 [get_bd_intf_pins pcie/pcie_transmit_fc] [get_bd_intf_pins pcie_transmit_fc]
@@ -597,13 +533,6 @@ refclk_PROT0_R0_100_MHz_unique1} \
   connect_bd_net -net gt_quad_0_ch2_phystatus [get_bd_pins gt_quad_0/ch2_phystatus] [get_bd_pins pcie_phy/ch2_phystatus]
   connect_bd_net -net gt_quad_0_ch3_phyready [get_bd_pins gt_quad_0/ch3_phyready] [get_bd_pins pcie_phy/ch3_phyready]
   connect_bd_net -net gt_quad_0_ch3_phystatus [get_bd_pins gt_quad_0/ch3_phystatus] [get_bd_pins pcie_phy/ch3_phystatus]
-  connect_bd_net -net pcie_cfg_wr_req_bme_vld [get_bd_pins pcie/cfg_wr_req_bme_vld] [get_bd_pins cfg_wr_req_bme_vld]
-  connect_bd_net -net pcie_cfg_wr_req_flr_vld [get_bd_pins pcie/cfg_wr_req_flr_vld] [get_bd_pins cfg_wr_req_flr_vld]
-  connect_bd_net -net pcie_cfg_wr_req_func_num [get_bd_pins pcie/cfg_wr_req_func_num] [get_bd_pins cfg_wr_req_func_num]
-  connect_bd_net -net pcie_cfg_wr_req_msi_vld [get_bd_pins pcie/cfg_wr_req_msi_vld] [get_bd_pins cfg_wr_req_msi_vld]
-  connect_bd_net -net pcie_cfg_wr_req_msix_vld [get_bd_pins pcie/cfg_wr_req_msix_vld] [get_bd_pins cfg_wr_req_msix_vld]
-  connect_bd_net -net pcie_cfg_wr_req_out_value [get_bd_pins pcie/cfg_wr_req_out_value] [get_bd_pins cfg_wr_req_out_value]
-  connect_bd_net -net pcie_cfg_wr_req_vfe_vld [get_bd_pins pcie/cfg_wr_req_vfe_vld] [get_bd_pins cfg_wr_req_vfe_vld]
   connect_bd_net -net pcie_pcie_ltssm_state [get_bd_pins pcie/pcie_ltssm_state] [get_bd_pins pcie_phy/pcie_ltssm_state]
   connect_bd_net -net pcie_phy_gt_pcieltssm [get_bd_pins pcie_phy/gt_pcieltssm] [get_bd_pins gt_quad_0/pcieltssm]
   connect_bd_net -net pcie_phy_gtrefclk [get_bd_pins pcie_phy/gtrefclk] [get_bd_pins gt_quad_0/GT_REFCLK0]
@@ -2208,6 +2137,7 @@ proc create_hier_cell_blp { parentCell nameHier } {
   set qdma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:qdma qdma_0 ]
   set_property -dict [list \
     CONFIG.MAILBOX_ENABLE {false} \
+    CONFIG.MSI_X_OPTIONS {MSI-X_External} \
     CONFIG.PF0_MSIX_CAP_TABLE_SIZE_qdma {01F} \
     CONFIG.PF1_MSIX_CAP_TABLE_SIZE_qdma {01F} \
     CONFIG.SRIOV_CAP_ENABLE {false} \
@@ -2216,7 +2146,7 @@ proc create_hier_cell_blp { parentCell nameHier } {
     CONFIG.axibar_notranslate {false} \
     CONFIG.axist_bypass_en {true} \
     CONFIG.axisten_freq {125} \
-    CONFIG.barlite_mb_pf1 {1} \
+    CONFIG.barlite_mb_pf1 {0} \
     CONFIG.copy_pf0 {false} \
     CONFIG.csr_axilite_slave {true} \
     CONFIG.dma_intf_sel_qdma {AXI_MM} \
@@ -2233,8 +2163,8 @@ proc create_hier_cell_blp { parentCell nameHier } {
     CONFIG.pf0_bar2_64bit_qdma {true} \
     CONFIG.pf0_bar2_prefetchable_qdma {true} \
     CONFIG.pf0_bar2_scale_qdma {Kilobytes} \
-    CONFIG.pf0_bar2_size_qdma {128} \
-    CONFIG.pf0_bar2_type_qdma {AXI_Bridge_Master} \
+    CONFIG.pf0_bar2_size_qdma {256} \
+    CONFIG.pf0_bar2_type_qdma {DMA} \
     CONFIG.pf0_class_code_base_qdma {12} \
     CONFIG.pf0_class_code_sub_qdma {00} \
     CONFIG.pf0_device_id {5700} \
@@ -2390,17 +2320,8 @@ proc create_hier_cell_blp { parentCell nameHier } {
   connect_bd_net -net force_reset_and_0_Res [get_bd_pins force_reset_and_0/Res] [get_bd_pins blp_logic/force_reset_result]
   connect_bd_net -net force_reset_concat_0_dout [get_bd_pins force_reset_concat_0/dout] [get_bd_pins force_reset_and_0/Op1]
   connect_bd_net -net force_reset_not_0_Res [get_bd_pins force_reset_not_0/Res] [get_bd_pins force_reset_concat_0/In1]
-  connect_bd_net -net qdma_0_cfg_wrreq_flr_done [get_bd_pins qdma_0/cfg_wrreq_flr_done] [get_bd_pins qdma_0_support/cfg_flr_done]
-  connect_bd_net -net qdma_0_cfg_wrreq_flr_done_func_num [get_bd_pins qdma_0/cfg_wrreq_flr_done_func_num] [get_bd_pins qdma_0_support/cfg_flr_done_func_num]
   connect_bd_net -net qdma_0_pcie_noc_axi_clk [get_bd_pins qdma_0/axi_aclk] [get_bd_pins qdma_0_smc/aclk] -boundary_type upper
   connect_bd_net -net qdma_0_pcie_noc_axi_clk [get_bd_pins qdma_0/axi_aclk] [get_bd_pins axi_noc_ic/aclk8] -boundary_type upper
-  connect_bd_net -net qdma_0_support_cfg_wr_req_bme_vld [get_bd_pins qdma_0_support/cfg_wr_req_bme_vld] [get_bd_pins qdma_0/cfg_wrreq_bme_vld]
-  connect_bd_net -net qdma_0_support_cfg_wr_req_flr_vld [get_bd_pins qdma_0_support/cfg_wr_req_flr_vld] [get_bd_pins qdma_0/cfg_wrreq_flr_vld]
-  connect_bd_net -net qdma_0_support_cfg_wr_req_func_num [get_bd_pins qdma_0_support/cfg_wr_req_func_num] [get_bd_pins qdma_0/cfg_wrreq_func_num]
-  connect_bd_net -net qdma_0_support_cfg_wr_req_msi_vld [get_bd_pins qdma_0_support/cfg_wr_req_msi_vld] [get_bd_pins qdma_0/cfg_wrreq_msi_vld]
-  connect_bd_net -net qdma_0_support_cfg_wr_req_msix_vld [get_bd_pins qdma_0_support/cfg_wr_req_msix_vld] [get_bd_pins qdma_0/cfg_wrreq_msix_vld]
-  connect_bd_net -net qdma_0_support_cfg_wr_req_out_value [get_bd_pins qdma_0_support/cfg_wr_req_out_value] [get_bd_pins qdma_0/cfg_wrreq_out_value]
-  connect_bd_net -net qdma_0_support_cfg_wr_req_vfe_vld [get_bd_pins qdma_0_support/cfg_wr_req_vfe_vld] [get_bd_pins qdma_0/cfg_wrreq_vfe_vld]
   connect_bd_net -net qdma_0_support_phy_rdy_out [get_bd_pins qdma_0_support/phy_rdy_out] [get_bd_pins qdma_0/phy_rdy_out_sd]
   connect_bd_net -net qdma_0_support_user_lnk_up [get_bd_pins qdma_0_support/user_lnk_up] [get_bd_pins qdma_0/user_lnk_up_sd]
   connect_bd_net -net qdma_0_support_user_reset [get_bd_pins qdma_0_support/user_reset] [get_bd_pins qdma_0/user_reset_sd]

@@ -1370,7 +1370,7 @@ proc create_hier_cell_blp_logic { parentCell nameHier } {
   # Create instance: uuid_rom, and set properties
   set uuid_rom [ create_bd_cell -type ip -vlnv xilinx.com:ip:shell_utils_uuid_rom uuid_rom ]
   set_property -dict [ list \
-   CONFIG.C_INITIAL_UUID {00000000000000000000000000000000} \
+   CONFIG.C_INITIAL_UUID {0000000000000000000000004f499143} \
  ] $uuid_rom
 
   # Create instance: ulp_clocking

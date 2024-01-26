@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 CP = cp -f
@@ -10,18 +10,15 @@ PFM_DIR = $(PWD)/platforms
 PFM_VER = 202320_1
 
 # valid platforms / overlays
-PFM_LIST = ve2302_pcie_qdma
-OVERLAY_LIST = filter2d_pl
-# override platform name based on overlay
-ifeq ($(OVERLAY),filter2d_pl)
-  override PFM = ve2302_pcie_qdma
-endif
-
-PFM_XPFM = $(PFM_DIR)/xilinx_$(PFM)_$(PFM_VER)/$(PFM).xpfm
+PFM_LIST += ve2302_pcie_qdma
+OVERLAY_LIST += filter2d_pl
 
 VITIS_DIR = overlays/examples
 VITIS_OVERLAY_DIR = $(VITIS_DIR)/$(OVERLAY)
 VITIS_OVERLAY_BIT = $(VITIS_OVERLAY_DIR)/binary_container_1/link/int/system.bit
+
+SILICON = prod
+PFM_NAME = ve2302_pcie_qdma
 
 .PHONY: help
 help:
@@ -32,15 +29,36 @@ help:
 	@echo ''
 	@echo '    Valid options for OVERLAY: ${OVERLAY_LIST}'
 	@echo ''
-	@echo '  make platform PFM=<val> JOBS=<n>'
+	@echo '  make platform PFM=<val> JOBS=<n> SILICON=<es1,prod>'
 	@echo '    Build the Vitis platform.'
 	@echo ''
 	@echo '    Valid options for PFM: ${PFM_LIST}'
 	@echo '    JOBS: optional param to set number of synthesis jobs (default 8)'
+	@echo '    SILICON: optional param to choose es1 (default prod)'
 	@echo ''
 	@echo '  make clean'
 	@echo '    Clean runs'
 	@echo ''
+
+# override platform name based on overlay
+ifeq ($(OVERLAY), filter2d_pl)
+  PFM = ve2302_pcie_qdma
+endif
+
+# Choose actual platform name based on SILICON flag
+ifeq ($(PFM), ve2302_pcie_qdma)
+  ifeq ($(SILICON), es1)
+    PFM_NAME = ve2302_es1_pcie_qdma
+  endif
+endif
+
+ifeq ($(PFM), ve2302_pcie_qdma)
+  ifneq ($(SILICON), es1)
+    PFM_NAME = ve2302_pcie_qdma
+  endif
+endif
+
+PFM_XPFM = $(PFM_DIR)/xilinx_$(PFM_NAME)_$(PFM_VER)/$(PFM_NAME).xpfm
 
 .PHONY: overlay
 overlay: $(VITIS_OVERLAY_BIT)
@@ -56,8 +74,8 @@ $(VITIS_OVERLAY_BIT): $(PFM_XPFM)
 	  echo 'Invalid parameter OVERLAY=$(OVERLAY). Choose one of: $(OVERLAY_LIST)'; \
 	  exit 1; \
 	fi; \
-	echo 'Build $(OVERLAY) Vitis overlay using platform $(PFM)'; \
-	$(MAKE) -C $(VITIS_OVERLAY_DIR) all PLATFORM=$(PFM_XPFM)
+	echo 'Build $(OVERLAY) Vitis overlay using platform $(PFM_NAME)'; \
+	$(MAKE) -C $(VITIS_OVERLAY_DIR) all PLATFORM=$(PFM_XPFM) SILICON=$(SILICON)
 
 .PHONY: platform
 platform: $(PFM_XPFM)
@@ -73,8 +91,8 @@ $(PFM_XPFM):
 	  echo 'Invalid parameter PFM=$(PFM). Choose one of: $(PFM_LIST)'; \
 	  exit 1; \
 	fi; \
-	echo 'Create Vitis platform $(PFM)'; \
-	$(MAKE) -C $(PFM_DIR) platform PLATFORM=$(PFM) VERSION=$(PFM_VER)
+	echo 'Create Vitis platform $(PFM_NAME)'; \
+	$(MAKE) -C $(PFM_DIR) platform PLATFORM=$(PFM) VERSION=$(PFM_VER) SILICON=$(SILICON)
 
 .PHONY: clean
 clean:

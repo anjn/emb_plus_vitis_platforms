@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2021-2023 Advanced Micro Devices, Inc.
+ * Copyright (C) 2021-2024 Advanced Micro Devices, Inc.
  * SPDX-License-Identifier: MIT
  *
  */
@@ -43,7 +43,7 @@ def buildPlatform() {
     script: '''
         pushd ${work_dir}/${board}
         source ${setup} -r ${tool_release} && set -e
-        ${lsf} make platform PFM=${pfm_base} JOBS=32
+        ${lsf} make platform PFM=${pfm_base} SILICON=${silicon} JOBS=32
         popd
     '''
 }
@@ -68,17 +68,17 @@ def deployPlatformFirmware() {
         if [ "${BRANCH_NAME}" == "${deploy_branch}" ]; then
             pushd ${work_dir}/${board}
             mkdir -p tmp
-            unzip platforms/${pfm}/hw/${pfm_base}.xsa -d tmp
+            unzip platforms/${pfm}/hw/${pfm_name}.xsa -d tmp
             pushd tmp
             source ${setup} -r ${tool_release} && set -e
-            echo "all: { ${pfm_base}.bit }" > bootgen.bif
+            echo "all: { ${pfm_name}.bit }" > bootgen.bif
             bootgen -arch zynqmp -process_bitstream bin -image bootgen.bif
             popd
-            fw=$(echo ${pfm_base} | tr _ -)
+            fw=$(echo ${pfm_name} | tr _ -)
             DST=${DEPLOYDIR}/firmware/${fw}
             mkdir -p ${DST}
-            cp -f tmp/${pfm_base}.bit ${DST}/${fw}.bit
-            cp -f tmp/${pfm_base}.bit.bin ${DST}/${fw}.bin
+            cp -f tmp/${pfm_name}.bit ${DST}/${fw}.bit
+            cp -f tmp/${pfm_name}.bit.bin ${DST}/${fw}.bin
             popd
             cp ${ws}/commitIDs ${DST}
         fi
@@ -179,11 +179,13 @@ pipeline {
                 stage('ve2302_pcie_qdma') {
                     environment {
                         pfm_base="ve2302_pcie_qdma"
-                        pfm="xilinx_${pfm_base}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_base}"
+                        pfm_name="ve2302_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
                         board="rave_ve2302"
+                        silicon="prod"
                         pfm_dir="${work_dir}/${board}/platforms/${pfm}"
-                        xpfm="${pfm_dir}/${pfm_base}.xpfm"
+                        xpfm="${pfm_dir}/${pfm_name}.xpfm"
                     }
                     stages {
                         stage('ve2302_pcie_qdma platform build')  {
@@ -211,6 +213,68 @@ pipeline {
                             }
                         }
                         stage('filter2d_pl overlay build') {
+                            environment {
+                                PAEG_LSF_MEM=65536
+                                PAEG_LSF_QUEUE="long"
+                                overlay="filter2d_pl"
+                                example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                            }
+                            when {
+                                anyOf {
+                                    changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
+                                    triggeredBy 'TimerTrigger'
+                                    environment name: 'BUILD_FILTER2D_PL', value: '1'
+                                }
+                            }
+                            steps {
+                                createWorkDir()
+                                buildOverlay()
+                            }
+                            post {
+                                success {
+                                    deployOverlay()
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('ve2302_es1_pcie_qdma') {
+                    environment {
+                        pfm_base="ve2302_pcie_qdma"
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="es1"
+                        pfm_dir="${work_dir}/${board}/platforms/${pfm}"
+                        xpfm="${pfm_dir}/${pfm_name}.xpfm"
+                    }
+                    stages {
+                        stage('ve2302_es1_pcie_qdma platform build')  {
+                            environment {
+                                PAEG_LSF_MEM=65536
+                                PAEG_LSF_QUEUE="long"
+                            }
+                            when {
+                                anyOf {
+                                    changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
+                                    triggeredBy 'TimerTrigger'
+                                }
+                            }
+                            steps {
+                                script {
+                                    env.BUILD_FILTER2D_PL = '1'
+                                }
+                                createWorkDir()
+                                buildPlatform()
+                            }
+                            post {
+                                success {
+                                    deployPlatform()
+                                }
+                            }
+                        }
+                        stage('filter2d_pl ES1 overlay build') {
                             environment {
                                 PAEG_LSF_MEM=65536
                                 PAEG_LSF_QUEUE="long"

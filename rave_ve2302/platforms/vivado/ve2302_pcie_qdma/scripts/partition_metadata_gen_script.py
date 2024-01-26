@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 #!/usr/bin/python3
@@ -11,11 +11,13 @@ import argparse
 parser = argparse.ArgumentParser(description="Partition_metadata generation - required files")
 parser.add_argument("-pdi",required=True, help="Project_Partial.pdi (partial PDI image) required")
 parser.add_argument("-config", required=True, help="config_bd.tcl file")
+parser.add_argument("-uuid", required=True, help="Validation UUID (to be compared to the actual UUID in PDI) - required")
 parser.add_argument("-o","--output", help="metadata file name", default="./partition_metadata.json")
 
 args = parser.parse_args()
 pdi_file_name = args.pdi
 config_bd_file_path = args.config
+validation_uuid = args.uuid
 metadata_file_path = args.output
 current_path = os.getcwd()
 generated_file_name = "partition_metadata.json  " # Generated file name "partition_metadata.json"
@@ -140,6 +142,7 @@ closing_str = '''        }
 
 # Regular expressions
 
+romuuid_Regex = re.compile(r'CONFIG.C_INITIAL_UUID \{([0-9a-fA-F]+)\} \\')
 ep_res_mem_Regex = re.compile(r' -offset (0x[0-9a-fA-F]+) -range (0x[0-9a-fA-F]+)')
 pf_Regex = re.compile(r'CONFIG.pf(\d)_bar(\d)_64bit')
 bar_address_Regex = re.compile(r'CONFIG.pf\d_pciebar2axibar_\d {(0x[0-9a-fA-F]+)} \\')
@@ -457,6 +460,11 @@ interface_uuid_int = int(interface_uuid_str,16)
 logic_uuid_int  = int(logic_uuid_str,16)
 interface_uuid = "{:032x}".format(interface_uuid_int)
 logic_uuid = "{:032x}".format(logic_uuid_int)
+
+
+if validation_uuid!= logic_uuid:
+    raise ValueError("Validation UUID and PDI UUID do not match!")
+
 
 metadata_file_generation(metadata_file_path,config_bd_file_path)
 print("partition_metadata.json has been successfully generated!")

@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 ################################################################
@@ -33,20 +33,13 @@ set script_folder [_tcl::get_script_folder]
 
 # Please add the sources before sourcing this Tcl script.
 
-# If there is no project opened, this script will create a
-# project, but make sure you do not have an existing project
-# <./myproj/project_1.xpr> in the current working folder.
-
-set list_projs [get_projects -quiet]
-if { $list_projs eq "" } {
-   create_project project_1 myproj -part xcve2302-sfva784-2MP-e-S-es1
-   #set_property BOARD_PART xilinx.com:vek280_es_revb:part0:1.1 [current_project]
-}
-
-
-# CHANGE DESIGN NAME HERE
+# Set design_name
 variable design_name
-set design_name ve2302_pcie_qdma
+set design_name $proj_name
+
+# Set UUID
+variable design_uuid
+set design_uuid $uuid
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -1144,7 +1137,7 @@ proc create_hier_cell_ulp_clocking { parentCell nameHier } {
 }
 
 # Hierarchical cell: blp_logic
-proc create_hier_cell_blp_logic { parentCell nameHier } {
+proc create_hier_cell_blp_logic { parentCell nameHier} {
 
   variable script_folder
 
@@ -1367,10 +1360,10 @@ proc create_hier_cell_blp_logic { parentCell nameHier } {
   # Create instance: pf_mailbox, and set properties
   set pf_mailbox [ create_bd_cell -type ip -vlnv xilinx.com:ip:mailbox pf_mailbox ]
 
-  # Create instance: uuid_rom, and set properties
+  # Create instance: uuid_rom, and set properties - pass global variable design_uuid to IP
   set uuid_rom [ create_bd_cell -type ip -vlnv xilinx.com:ip:shell_utils_uuid_rom uuid_rom ]
   set_property -dict [ list \
-   CONFIG.C_INITIAL_UUID {0000000000000000000000004f499143} \
+    CONFIG.C_INITIAL_UUID $::design_uuid \
  ] $uuid_rom
 
   # Create instance: ulp_clocking
@@ -1576,7 +1569,7 @@ set axi_intc_gcq_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc axi_
 }
 
 # Hierarchical cell: blp
-proc create_hier_cell_blp { parentCell nameHier } {
+proc create_hier_cell_blp { parentCell nameHier} {
 
   variable script_folder
 
@@ -2352,7 +2345,7 @@ proc create_hier_cell_blp { parentCell nameHier } {
 
 # Procedure to create entire design; Provide argument to make
 # procedure reusable. If parentCell is "", will use root.
-proc create_root_design { parentCell } {
+proc create_root_design { parentCell} {
 
   variable script_folder
   variable design_name

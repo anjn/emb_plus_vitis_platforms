@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 ################################################################
@@ -30,10 +30,10 @@ set script_folder [_tcl::get_script_folder]
 # project, but make sure you do not have an existing project
 # <./myproj/project_1.xpr> in the current working folder.
 
-set list_projs [get_projects -quiet]
-if { $list_projs eq "" } {
-   create_project project_1 myproj -part xcve2302-sfva784-2MP-e-S-es1
-}
+#set list_projs [get_projects -quiet]
+#if { $list_projs eq "" } {
+#   create_project project_1 myproj -part xcve2302-sfva784-2MP-e-S-es1
+#}
 
 
 # CHANGE DESIGN NAME HERE

@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 # Set the necessary Vivado params for the platform build
@@ -8,18 +8,17 @@ set_param bd.bdc.use_training_module 1
 set_param bd.test "no_noc_ini_stub"
 
 # Set project variables
-set proj_name ve2302_pcie_qdma
 set proj_dir ./project
-set baseBD ve2302_pcie_qdma
 set userBD ulp
 set board rave_ve2302
-set part xcve2302-sfva784-2MP-e-S-es1
 set bd_tcl_dir ./scripts
 set output_dir ./xsa
 set output {xsa}
 set xdc_list {./xdc/impl.xdc ./xdc/pcie.xdc ./xdc/lpddr_dual_ch_bk.xdc ./xdc/pblock.xdc }
 set ip_repo_path {./ip}
 set jobs 8
+set silicon prod
+set uuid 0000000000000000000000009447ee7c
 
 # parse arguments
 for { set i 0 } { $i < $argc } { incr i } {
@@ -28,6 +27,24 @@ for { set i 0 } { $i < $argc } { incr i } {
     incr i
     set jobs [lindex $argv $i]
   }
+  # silicon
+  if { [lindex $argv $i] == "-silicon" } {
+    incr i
+    set silicon [lindex $argv $i]
+  }
+  # uuid
+  if { [lindex $argv $i] == "-uuid" } {
+    incr i
+    set uuid [lindex $argv $i]
+  }
+}
+
+if {$silicon == "es1"} {
+  set part xcve2302-sfva784-2MP-e-S-es1
+  set proj_name ve2302_es1_pcie_qdma
+} else {
+  set part xcve2302-sfva784-2MP-e-S
+  set proj_name ve2302_pcie_qdma
 }
 
 create_project -name $proj_name -force -dir $proj_dir -part $part
@@ -48,18 +65,17 @@ import_files -fileset utils_1   -norecurse "./scripts/opt.pre.tcl"
 set_property used_in_synthesis false          [get_files *impl*.xdc]
 set_property STEPS.OPT_DESIGN.TCL.PRE         [get_files *opt.pre.tcl]                [get_runs impl_1]
 
-make_wrapper -files [get_files ${baseBD}.bd] -top
-import_files -force -norecurse $proj_dir/${proj_name}.srcs/sources_1/bd/${baseBD}/hdl/${baseBD}_wrapper.v
+make_wrapper -files [get_files ${proj_name}.bd] -top
+import_files -force -norecurse $proj_dir/${proj_name}.srcs/sources_1/bd/${proj_name}/hdl/${proj_name}_wrapper.v
 update_compile_order
 set_property top ${proj_name}_wrapper [current_fileset]
 update_compile_order -fileset sources_1
-
 
 save_bd_design
 validate_bd_design
 
 # Generate all output products
-generate_target all [get_files ${baseBD}.bd]
+generate_target all [get_files ${proj_name}.bd]
 
 set fd [open $proj_dir/README.hw w]
 
@@ -90,12 +106,12 @@ foreach ip [get_ips] {
 close $fd
 
 # Set the DFX configuration, then run all synthesis and implementation steps
-create_pr_configuration -name config_1 -partitions [list ${baseBD}_i/${userBD}:${userBD}_inst_0]
+create_pr_configuration -name config_1 -partitions [list ${proj_name}_i/${userBD}:${userBD}_inst_0]
 set_property PR_CONFIGURATION config_1 [get_runs impl_1]
 
 set_property strategy Performance_Auto_3 [get_runs impl_1]
 
-launch_runs impl_1 -to_step write_device_image -jobs 16
+launch_runs impl_1 -to_step write_device_image -jobs $jobs
 wait_on_run impl_1
 open_run impl_1
 
@@ -113,7 +129,7 @@ set_property platform.extensible                      true                    [c
 set_property platform.pcie_id_vendor                  "0x10ee"                [current_project]
 set_property platform.pcie_id_device                  "0x5700"                [current_project]
 set_property platform.pcie_id_subsystem               "0x000e"                [current_project]
-set_property platform.dr_inst_path                    "${baseBD}_i/${userBD}" [current_project]
+set_property platform.dr_inst_path                    "${proj_name}_i/${userBD}" [current_project]
 set_property platform.design_intent.embedded          false                   [current_project]
 set_property platform.design_intent.server_managed    true                    [current_project]
 set_property platform.design_intent.external_host     true                    [current_project]
@@ -128,7 +144,7 @@ set_property platform.link_xp_switches_default        "{vivado_param:hd.enablePR
 
 write_hw_platform -force -fixed -hw -static ${proj_dir}/${proj_name}_base.xsa
 validate_hw_platform -verbose ${proj_dir}/${proj_name}_base.xsa
-write_hw_platform -force -hw -rp ${baseBD}_i/${userBD} ${proj_dir}/${proj_name}.xsa
+write_hw_platform -force -hw -rp ${proj_name}_i/${userBD} ${proj_dir}/${proj_name}.xsa
 validate_hw_platform -verbose ${proj_dir}/${proj_name}.xsa
 
 exit

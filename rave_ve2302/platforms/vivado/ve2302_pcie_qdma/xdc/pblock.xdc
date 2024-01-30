@@ -1,8 +1,8 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023 - 2024 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 create_pblock pblock_ulp
-add_cells_to_pblock [get_pblocks pblock_ulp] [get_cells -quiet [list ve2302_pcie_qdma_i/ulp]]
+add_cells_to_pblock [get_pblocks pblock_ulp] [get_cells -quiet [list */ulp]]
 resize_pblock [get_pblocks pblock_ulp] -add {SLICE_X16Y147:SLICE_X99Y187 SLICE_X60Y75:SLICE_X75Y146}
 resize_pblock [get_pblocks pblock_ulp] -add {BUFGCE_X2Y0:BUFGCE_X3Y23}
 resize_pblock [get_pblocks pblock_ulp] -add {BUFGCE_DIV_X3Y0:BUFGCE_DIV_X3Y3}

@@ -433,19 +433,19 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.INI_STRATEGY {load} \
    ] $BLP_M_M00_INI_0
-  set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M00_INI_0]
+  set_property APERTURES {{0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M00_INI_0]
 
   set BLP_M_M01_INI_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:inimm_rtl:1.0 BLP_M_M01_INI_0 ]
   set_property -dict [ list \
    CONFIG.INI_STRATEGY {load} \
    ] $BLP_M_M01_INI_0
-  set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M01_INI_0]
+  set_property APERTURES {{0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M01_INI_0]
 
   set BLP_M_M02_INI_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:inimm_rtl:1.0 BLP_M_M02_INI_0 ]
   set_property -dict [ list \
    CONFIG.INI_STRATEGY {load} \
    ] $BLP_M_M02_INI_0
-  set_property APERTURES {{0x0 2G} {0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M02_INI_0]
+  set_property APERTURES {{0x500_0000_0000 6G}} [get_bd_intf_ports BLP_M_M02_INI_0]
 
   set BLP_S_INI_DBG_00 [ create_bd_intf_port -mode Slave -vlnv xilinx.com:interface:inimm_rtl:1.0 BLP_S_INI_DBG_00 ]
   set_property -dict [ list \

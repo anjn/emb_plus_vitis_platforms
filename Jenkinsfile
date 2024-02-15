@@ -108,6 +108,9 @@ def deployOverlay() {
     sh label: 'overlay deploy',
     script: '''
         if [ "${BRANCH_NAME}" == "${deploy_branch}" ]; then
+            if [ "${silicon}" != "prod" ]; then
+                board=${board}_${silicon}
+            fi
             DST=${DEPLOYDIR}/firmware/${board}-${overlay}
             mkdir -p ${DST}
             cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin

@@ -197,6 +197,7 @@ pipeline {
                                 anyOf {
                                     changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
                                     triggeredBy 'TimerTrigger'
+                                    triggeredBy 'UserIdCause'
                                 }
                             }
                             steps {
@@ -259,6 +260,7 @@ pipeline {
                                 anyOf {
                                     changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
                                     triggeredBy 'TimerTrigger'
+                                    triggeredBy 'UserIdCause'
                                 }
                             }
                             steps {

@@ -12,9 +12,9 @@ PLATFORM ?= ve2302_pcie_qdma
 VERSION ?= 202320_1
 
 ifeq ($(SILICON), es1)
-	VIV_DESIGN = ve2302_es1_pcie_qdma
+  VIV_DESIGN = ve2302_es1_pcie_qdma
 else
-	VIV_DESIGN = ve2302_pcie_qdma
+  VIV_DESIGN = ve2302_pcie_qdma
 endif
 
 PFM_DIR = xilinx_$(VIV_DESIGN)_$(VERSION)

@@ -265,7 +265,7 @@ pipeline {
                             }
                             steps {
                                 script {
-                                    env.BUILD_FILTER2D_PL = '1'
+                                    env.BUILD_FILTER2D_PL_ES1 = '1'
                                 }
                                 createWorkDir()
                                 buildPlatform()
@@ -287,7 +287,7 @@ pipeline {
                                 anyOf {
                                     changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
                                     triggeredBy 'TimerTrigger'
-                                    environment name: 'BUILD_FILTER2D_PL', value: '1'
+                                    environment name: 'BUILD_FILTER2D_PL_ES1', value: '1'
                                 }
                             }
                             steps {

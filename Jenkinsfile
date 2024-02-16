@@ -91,9 +91,9 @@ def buildOverlay() {
         pushd ${work_dir}/${board}
         if [ -d platforms/${pfm} ]; then
             echo "Using platform from local build"
-        elif [ -d ${DEPLOYDIR}/${pfm} ]; then
+        elif [ -d ${DEPLOYDIR}/platforms/${pfm} ]; then
             echo "Using platform from build artifacts"
-            ln -s ${DEPLOYDIR}/${pfm} platforms/
+            ln -s ${DEPLOYDIR}/platforms/${pfm} platforms/
         else
             echo "No valid platform found: ${pfm}"
             exit 1
@@ -108,6 +108,9 @@ def deployOverlay() {
     sh label: 'overlay deploy',
     script: '''
         if [ "${BRANCH_NAME}" == "${deploy_branch}" ]; then
+            if [ "${silicon}" != "prod" ]; then
+                board=${board}_${silicon}
+            fi
             DST=${DEPLOYDIR}/firmware/${board}-${overlay}
             mkdir -p ${DST}
             cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin
@@ -197,6 +200,7 @@ pipeline {
                                 anyOf {
                                     changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
                                     triggeredBy 'TimerTrigger'
+                                    triggeredBy 'UserIdCause'
                                 }
                             }
                             steps {
@@ -259,11 +263,12 @@ pipeline {
                                 anyOf {
                                     changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
                                     triggeredBy 'TimerTrigger'
+                                    triggeredBy 'UserIdCause'
                                 }
                             }
                             steps {
                                 script {
-                                    env.BUILD_FILTER2D_PL = '1'
+                                    env.BUILD_FILTER2D_PL_ES1 = '1'
                                 }
                                 createWorkDir()
                                 buildPlatform()
@@ -285,7 +290,7 @@ pipeline {
                                 anyOf {
                                     changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
                                     triggeredBy 'TimerTrigger'
-                                    environment name: 'BUILD_FILTER2D_PL', value: '1'
+                                    environment name: 'BUILD_FILTER2D_PL_ES1', value: '1'
                                 }
                             }
                             steps {

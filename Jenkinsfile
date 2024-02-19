@@ -99,7 +99,7 @@ def buildOverlay() {
             exit 1
         fi
         source ${setup} -r ${tool_release} && set -e
-        ${lsf} make overlay OVERLAY=${overlay}
+        ${lsf} make overlay OVERLAY=${overlay} SILICON=${silicon}
         popd
     '''
 }

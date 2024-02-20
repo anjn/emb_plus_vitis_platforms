@@ -692,12 +692,12 @@ proc create_root_design { parentCell } {
 
   # Create PFM attributes
   set_property PFM_NAME {xilinx.com:rave_ve2302:ve2302_pcie_qdma:1.0} [get_files [current_bd_design].bd]
-  set_property PFM.CLOCK {blp_s_aclk_kernel_00 {id "1" is_default "true" proc_sys_reset "/reset_controllers/reset_sync_kernel0" status "scalable" freq_hz "299996999"}} [get_bd_ports /blp_s_aclk_kernel_00]
-  set_property PFM.CLOCK {blp_s_aclk_kernel_01 {id "2" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_kernel1" status "scalable" freq_hz "249997499"}} [get_bd_ports /blp_s_aclk_kernel_01]
-  set_property PFM.CLOCK {blp_s_aclk_ctrl_00 {id "0" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_fixed" status "fixed" freq_hz "99999001"}} [get_bd_ports /blp_s_aclk_ctrl_00]
+  set_property PFM.CLOCK {blp_s_aclk_kernel_00 {id "0" is_default "true" proc_sys_reset "/reset_controllers/reset_sync_kernel0" status "scalable" freq_hz "299996999"}} [get_bd_ports /blp_s_aclk_kernel_00]
+  set_property PFM.CLOCK {blp_s_aclk_kernel_01 {id "1" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_kernel1" status "scalable" freq_hz "249997499"}} [get_bd_ports /blp_s_aclk_kernel_01]
+  set_property PFM.CLOCK {blp_s_aclk_ctrl_00 {id "2" is_default "false" proc_sys_reset "/reset_controllers/reset_sync_fixed" status "fixed" freq_hz "99999001"}} [get_bd_ports /blp_s_aclk_ctrl_00]
 
   set_property PFM.AXI_PORT {M01_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M02_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M03_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M04_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M05_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M06_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M07_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M08_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M09_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"} M10_AXI {memport "M_AXI_GP" sptag "" memory "" is_range "true"}} [get_bd_cells /axi_ic_user]
-  set_property PFM.AXI_PORT {S00_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S01_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"} S02_AXI {memport "S_AXI_NOC" sptag "HOST" memory "" is_range "true"}} [get_bd_cells /axi_noc_kernel0]
+  set_property PFM.AXI_PORT {S00_AXI {memport "S_AXI_NOC" sptag "MC_NOC" memory "" is_range "true"} S01_AXI {memport "S_AXI_NOC" sptag "MC_NOC" memory "" is_range "true"} S02_AXI {memport "S_AXI_NOC" sptag "MC_NOC" memory "" is_range "true"}} [get_bd_cells /axi_noc_kernel0]
   set_property PFM.IRQ {In0 {id 0 range 32}} [get_bd_cells /kernel_interrupt/xlconcat_0]
 
   # System DPA attributes

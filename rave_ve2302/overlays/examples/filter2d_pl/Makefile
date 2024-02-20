@@ -18,6 +18,7 @@ XBU_FLAGS = --remove-section BITSTREAM --force
 KERNEL_OBJS += kernel/filter2d_pl_accel/filter2d_pl_accel.xo
 BINARY_CONTAINER = binary_container_1.xclbin
 XSA_FILE = binary_container_1.xsa
+CLK_FREQ = 299996999
 
 # Rules
 .PHONY: all
@@ -28,7 +29,7 @@ $(XSA_FILE): $(KERNEL_OBJS)
 	-@$(RM) .Xil
 
 $(KERNEL_OBJS):
-	$(MAKE) -C kernel
+	$(MAKE) -C kernel FREQ=$(CLK_FREQ)
 
 .PHONY: clean clean-subdirs
 clean: clean-subdirs

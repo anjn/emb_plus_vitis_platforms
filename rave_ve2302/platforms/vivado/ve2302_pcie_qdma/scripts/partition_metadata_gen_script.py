@@ -40,7 +40,7 @@ dtb_commithash = 'db419fa'
 
 uuid_txt_file = "uuid_data.txt"
 uuid_file_path = current_path+"/"+ uuid_txt_file
-cmd = "bootgen -arch versal -read {} >> {}" ## Bootgen run and save output to txt file
+cmd = "bootgen -arch versal -read {} > {}" ## Bootgen run and save output to txt file (overwrite old)
 
 
 ## UUIDs variables

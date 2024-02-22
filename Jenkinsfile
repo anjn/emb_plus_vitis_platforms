@@ -134,6 +134,8 @@ pipeline {
         ws="${WORKSPACE}"
         setup="${ws}/paeg-helper/env-setup.sh"
         lsf="${ws}/paeg-helper/scripts/lsf"
+        PAEG_LSF_MEM=65536
+        PAEG_LSF_QUEUE="long"
         DEPLOYDIR="/wrk/paeg_builds/build-artifacts/rave-vitis-platforms/${tool_release}"
     }
     options {
@@ -177,9 +179,9 @@ pipeline {
                 logCommitIDs()
             }
         }
-        stage('Vitis Builds') {
+        stage('Platform builds') {
             parallel {
-                stage('ve2302_pcie_qdma') {
+                stage('ve2302_pcie_qdma platform build')  {
                     environment {
                         pfm_base="ve2302_pcie_qdma"
                         pfm_name="ve2302_pcie_qdma"
@@ -190,59 +192,27 @@ pipeline {
                         pfm_dir="${work_dir}/${board}/platforms/${pfm}"
                         xpfm="${pfm_dir}/${pfm_name}.xpfm"
                     }
-                    stages {
-                        stage('ve2302_pcie_qdma platform build')  {
-                            environment {
-                                PAEG_LSF_MEM=65536
-                                PAEG_LSF_QUEUE="long"
-                            }
-                            when {
-                                anyOf {
-                                    changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
-                                    triggeredBy 'TimerTrigger'
-                                    triggeredBy 'UserIdCause'
-                                }
-                            }
-                            steps {
-                                script {
-                                    env.BUILD_FILTER2D_PL = '1'
-                                }
-                                createWorkDir()
-                                buildPlatform()
-                            }
-                            post {
-                                success {
-                                    deployPlatform()
-                                }
-                            }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
                         }
-                        stage('filter2d_pl overlay build') {
-                            environment {
-                                PAEG_LSF_MEM=65536
-                                PAEG_LSF_QUEUE="long"
-                                overlay="filter2d_pl"
-                                example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    steps {
+                        createWorkDir()
+                        buildPlatform()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_PFM_SUCCESS = '1'
                             }
-                            when {
-                                anyOf {
-                                    changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
-                                    triggeredBy 'TimerTrigger'
-                                    environment name: 'BUILD_FILTER2D_PL', value: '1'
-                                }
-                            }
-                            steps {
-                                createWorkDir()
-                                buildOverlay()
-                            }
-                            post {
-                                success {
-                                    deployOverlay()
-                                }
-                            }
+                            deployPlatform()
                         }
                     }
                 }
-                stage('ve2302_es1_pcie_qdma') {
+                stage('ve2302_es1_pcie_qdma platform build')  {
                     environment {
                         pfm_base="ve2302_pcie_qdma"
                         pfm_name="ve2302_es1_pcie_qdma"
@@ -253,55 +223,81 @@ pipeline {
                         pfm_dir="${work_dir}/${board}/platforms/${pfm}"
                         xpfm="${pfm_dir}/${pfm_name}.xpfm"
                     }
-                    stages {
-                        stage('ve2302_es1_pcie_qdma platform build')  {
-                            environment {
-                                PAEG_LSF_MEM=65536
-                                PAEG_LSF_QUEUE="long"
-                            }
-                            when {
-                                anyOf {
-                                    changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
-                                    triggeredBy 'TimerTrigger'
-                                    triggeredBy 'UserIdCause'
-                                }
-                            }
-                            steps {
-                                script {
-                                    env.BUILD_FILTER2D_PL_ES1 = '1'
-                                }
-                                createWorkDir()
-                                buildPlatform()
-                            }
-                            post {
-                                success {
-                                    deployPlatform()
-                                }
-                            }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
+                            triggeredBy 'TimerTrigger'
+                            triggeredBy 'UserIdCause'
                         }
-                        stage('filter2d_pl ES1 overlay build') {
-                            environment {
-                                PAEG_LSF_MEM=65536
-                                PAEG_LSF_QUEUE="long"
-                                overlay="filter2d_pl"
-                                example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    steps {
+                        createWorkDir()
+                        buildPlatform()
+                    }
+                    post {
+                        success {
+                            script {
+                                env.VE2302_ES1_PFM_SUCCESS = '1'
                             }
-                            when {
-                                anyOf {
-                                    changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
-                                    triggeredBy 'TimerTrigger'
-                                    environment name: 'BUILD_FILTER2D_PL_ES1', value: '1'
-                                }
-                            }
-                            steps {
-                                createWorkDir()
-                                buildOverlay()
-                            }
-                            post {
-                                success {
-                                    deployOverlay()
-                                }
-                            }
+                            deployPlatform()
+                        }
+                    }
+                }
+            }
+        }
+        stage('Overlay Builds') {
+            parallel {
+                stage('filter2d_pl overlay build') {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="prod"
+                        overlay="filter2d_pl"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        createWorkDir()
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('filter2d_pl ES1 overlay build') {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="es1"
+                        overlay="filter2d_pl"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/filter2d_pl/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        createWorkDir()
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
                         }
                     }
                 }

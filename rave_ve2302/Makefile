@@ -11,7 +11,7 @@ PFM_VER = 202320_1
 
 # valid platforms / overlays
 PFM_LIST += ve2302_pcie_qdma
-OVERLAY_LIST += filter2d_pl
+OVERLAY_LIST += filter2d_pl bandwidth_test validate_aie2_pl verify_test
 
 VITIS_DIR = overlays/examples
 VITIS_OVERLAY_DIR = $(VITIS_DIR)/$(OVERLAY)
@@ -41,7 +41,7 @@ help:
 	@echo ''
 
 # override platform name based on overlay
-ifeq ($(OVERLAY), filter2d_pl)
+ifneq ($(filter $(OVERLAY), $(OVERLAY_LIST)),)
   PFM = ve2302_pcie_qdma
 endif
 

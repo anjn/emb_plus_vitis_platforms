@@ -179,7 +179,29 @@ pipeline {
                 logCommitIDs()
             }
         }
-        stage('Platform builds') {
+        stage('Create Build Directories') {
+            parallel {
+                stage('ve2302_pcie_qdma')  {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
+                stage('ve2302_es1_pcie_qdma platform build')  {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
+            }
+        }
+        stage('Build Platforms') {
             parallel {
                 stage('ve2302_pcie_qdma platform build')  {
                     environment {
@@ -200,7 +222,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildPlatform()
                     }
                     post {
@@ -231,7 +252,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildPlatform()
                     }
                     post {
@@ -245,7 +265,7 @@ pipeline {
                 }
             }
         }
-        stage('Overlay Builds') {
+        stage('Build Overlays') {
             parallel {
                 stage('filter2d_pl overlay build') {
                     environment {
@@ -265,7 +285,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -292,7 +311,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -319,7 +337,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -346,7 +363,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -373,7 +389,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -400,7 +415,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -427,7 +441,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -454,7 +467,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {

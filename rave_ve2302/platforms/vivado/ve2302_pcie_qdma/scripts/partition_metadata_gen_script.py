@@ -463,6 +463,7 @@ logic_uuid = "{:032x}".format(logic_uuid_int)
 
 
 if validation_uuid!= logic_uuid:
+    print ("Attention! " + validation_uuid + " != " + logic_uuid)
     raise ValueError("Validation UUID and PDI UUID do not match!")
 
 

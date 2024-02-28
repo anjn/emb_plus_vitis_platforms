@@ -32,9 +32,18 @@ VIV_XSA = $(VIV_DIR)/project/$(VIV_XSA_NAME).xsa
 help:
 	@echo 'Usage:'
 	@echo ''
-	@echo '  make platform'
+	@echo '  make platform [PLATFORM=<p>] [SILICON=<es1,prod>] [VERSION=<v>]'
 	@echo '    Generate Vitis platform'
 	@echo ''
+	@echo '  make clean [PLATFORM=<p>] [SILICON=<es1,prod>] [VERSION=<v>]'
+	@echo '    Clean files and directories for specified platform'
+	@echo ''
+	@echo '  Defaults:'
+	@echo '    PLATFORM: $(PLATFORM) '
+	@echo '    SILICON: $(SILICON) '
+	@echo '    VERSION: $(VERSION) '
+	@echo ''
+
 
 .PHONY: all
 all: platform

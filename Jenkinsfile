@@ -179,7 +179,29 @@ pipeline {
                 logCommitIDs()
             }
         }
-        stage('Platform builds') {
+        stage('Create Build Directories') {
+            parallel {
+                stage('ve2302_pcie_qdma')  {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
+                stage('ve2302_es1_pcie_qdma platform build')  {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        work_dir="${ws}/build/${pfm_name}"
+                    }
+                    steps {
+                        createWorkDir()
+                    }
+                }
+            }
+        }
+        stage('Build Platforms') {
             parallel {
                 stage('ve2302_pcie_qdma platform build')  {
                     environment {
@@ -200,7 +222,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildPlatform()
                     }
                     post {
@@ -231,7 +252,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildPlatform()
                     }
                     post {
@@ -245,7 +265,7 @@ pipeline {
                 }
             }
         }
-        stage('Overlay Builds') {
+        stage('Build Overlays') {
             parallel {
                 stage('filter2d_pl overlay build') {
                     environment {
@@ -265,7 +285,6 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
                         buildOverlay()
                     }
                     post {
@@ -292,7 +311,162 @@ pipeline {
                         }
                     }
                     steps {
-                        createWorkDir()
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('verify_test overlay build') {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="prod"
+                        overlay="verify_test"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/verify_test/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('verify_test ES1 overlay build') {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="es1"
+                        overlay="verify_test"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/verify_test/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('bandwidth_test overlay build') {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="prod"
+                        overlay="bandwidth_test"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/bandwidth_test/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('bandwidth_test ES1 overlay build') {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="es1"
+                        overlay="bandwidth_test"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/bandwidth_test/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('validate_aie2_pl overlay build') {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="prod"
+                        overlay="validate_aie2_pl"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/validate_aie2_pl/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('validate_aie2_pl ES1 overlay build') {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="rave_ve2302"
+                        silicon="es1"
+                        overlay="validate_aie2_pl"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/rave_ve2302/overlays/examples/validate_aie2_pl/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
                         buildOverlay()
                     }
                     post {

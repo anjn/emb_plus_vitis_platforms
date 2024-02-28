@@ -4,11 +4,11 @@
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
 VERSION = 1
-CURDIR = $(shell pwd) 
+CURDIR = $(shell pwd)
 SRC = ./src
 RM = rm -rf
 MV = mv
-BAORD_NAME = emb_plus
+BOARD_NAME = emb_plus
 
 # Kernel name
 KERNEL ?= bandwidth
@@ -22,11 +22,11 @@ PLATFORM ?=
 JOBS ?= 32
 VPP_XO_FLAGS = -c -t hw --platform $(PLATFORM) --save-temps \
 	-j $(JOBS) $(KERNEL_XO_FLAGS) \
-	--temp_dir ./_x.hw.xilinx_$(BAORD_NAME)_$(YEAR)$(MONTH)_$(VERSION) \
+	--temp_dir ./_x \
 
 VPP_LINK_FLAGS = -l -t hw --platform $(PLATFORM) --save-temps \
 	--report_level estimate -j $(JOBS) \
-	--temp_dir ./_x.hw.xilinx_$(BAORD_NAME)_$(YEAR)$(MONTH)_$(VERSION) \
+	--temp_dir ./_x
 
 # XSA file name
 
@@ -34,7 +34,7 @@ XSA_FILE = $(KERNEL).link.xsa
 
 
 # Rules
-.PHONY: all  
+.PHONY: all
 all: $(SRC_FILE) $(KERNEL_XO) $(XSA_FILE)
 $(KERNEL_XO): $(SRC_FILE)
 	@mkdir -p $(@D)
@@ -48,13 +48,13 @@ $(XSA_FILE): $(KERNEL_XO)
 	-@$(RM) .Xill
 
 .PHONY: help
-help:  
+help:
 	@echo "Makefile Usage:"
 	@echo "make all PLATFORM= <xpfm_file_location>"
-	@echo "Command to build xclbin application" 
+	@echo "Command to build xclbin application"
 	@echo ""
 	@echo "make clean"
-	@echo "Command to remove the generated files. " 
+	@echo "Command to remove the generated files. "
 	@echo ""
 
 .PHONY: clean
@@ -62,8 +62,8 @@ clean:
 	-$(RM) $(KERNEL_XO) *.log _x $(KERNEL_XO).compile_summary
 	-$(RM) _xocc* .Xil _x *.o *.xclbin
 	-$(RM) .Xil _sds *.xml *.dat *.hpfm iprepo *.xtxt *.xsa
-	-$(RM) *.info .crashReporter .ipcache 
-	-$(RM) ./_x.hw.xilinx_* 
+	-$(RM) *.info .crashReporter .ipcache
+	-$(RM) ./_x.*
 	-$(RM) *.link_summary* *.package_summary* *.ltx
 
 

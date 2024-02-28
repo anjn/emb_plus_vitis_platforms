@@ -5,7 +5,7 @@ YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
 VERSION = 1
 
-CURDIR = $(shell pwd) 
+CURDIR = $(shell pwd)
 SRC = $(CURDIR)/src
 
 RM = rm -rf
@@ -16,7 +16,7 @@ PLATFORM ?=
 PLATFORM_NAME = $(strip $(patsubst %.xpfm, % , $(shell basename $(PLATFORM))))
 
 
-include utils.mk 
+include utils.mk
 
 # v++ flags
 VPP = v++
@@ -36,8 +36,8 @@ XCLBIN_DIR := $(CUR_DIR)/$(BUILD_DIR)
 export XCL_BINDIR = $(XCLBIN_DIR)
 BINARY_CONTAINERS_DEPS :=
 
-VPP_FLAGS += --save-temps 
-VPP_LDFLAGS += --optimize 2 -R 2 
+VPP_FLAGS += --save-temps
+VPP_LDFLAGS += --optimize 2 -R 2
 VPP_FLAGS += $(EXTRA_VPP_FLAGS)
 
 # aie template
@@ -54,7 +54,7 @@ endif
 ############################ setting AIE Compiler ###########################
 
 AIETARGET := hw
-AIE_CXXFLAGS += --target=$(AIETARGET) --platform=$(PLATFORM) --pl-freq=1000 
+AIE_CXXFLAGS += --target=$(AIETARGET) --platform=$(PLATFORM) --pl-freq=1000
 AIE_CXXFLAGS += -I $(XILINX_VITIS_AIETOOLS)/include
 AIE_CONTAINER = $(TEMP_DIR)/libadf.a
 AIE_CXXFLAGS += -I $(SRC_DIR)/aie
@@ -73,8 +73,8 @@ VPP_FLAGS_pl_controller_top += --hls.clock 250000000:pl_controller_top
 VPP_FLAGS_sender_receiver += --verbose
 VPP_FLAGS_sender_receiver += --hls.clock 250000000:sender_receiver
 VPP_LDFLAGS_emb_plus_pl_controller.xclbin += --kernel_frequency 250
-BINARY_CONTAINERS += $(BUILD_DIR)/pl_controller.xsa
-BINARY_CONTAINERS_PKG += $(BUILD_DIR)/pl_controller_aie.xclbin
+BINARY_CONTAINERS += pl_controller.xsa
+BINARY_CONTAINERS_PKG += pl_controller_aie.xclbin
 
 
 PL_CONT_XO_FILE = $(TEMP_DIR)/pl_controller_top.xo
@@ -82,24 +82,24 @@ SEND_REC_XO_FILE = $(TEMP_DIR)/sender_receiver.xo
 
 ############################## Setting Targets ##############################
 
-.PHONY: all xclbin 
+.PHONY: all xclbin
 all: xclbin
 xclbin:  $(BINARY_CONTAINERS)
-$(BINARY_CONTAINERS): $(PL_CONT_XO_FILE) $(SEND_REC_XO_FILE) $(AIE_CONTAINER) 
+$(BINARY_CONTAINERS): $(PL_CONT_XO_FILE) $(SEND_REC_XO_FILE) $(AIE_CONTAINER)
 	mkdir -p $(BUILD_DIR)
-	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS)  $(VPP_LDFLAGS_emb_plus_pl_controller.xclbin) -o $@ $^ 
+	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS)  $(VPP_LDFLAGS_emb_plus_pl_controller.xclbin) -o $@ $^
 
 
 
 ################ Setting Rules for Binary Containers (Building Kernels) ################
-$(PL_CONT_XO_FILE): $(SRC_DIR)/pl_kernels/pl_controller_top.cpp 
+$(PL_CONT_XO_FILE): $(SRC_DIR)/pl_kernels/pl_controller_top.cpp
 	$(ECHO) "Compiling Kernel: pl_controller_top"
 	mkdir -p $(TEMP_DIR)
 	$(VPP) -c $(VPP_FLAGS_pl_controller_top) $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) -k pl_controller_top -I'$(<D)' --temp_dir $(TEMP_DIR) --report_dir $(TEMP_REPORT_DIR) -o'$@' '$<'
 BINARY_CONTAINER_emb_plus_pl_controller.xclbin_OBJS += $(TEMP_DIR)/pl_controller_top.xo
 
 
-$(SEND_REC_XO_FILE): $(SRC_DIR)/pl_kernels/sender_receiver.cpp 
+$(SEND_REC_XO_FILE): $(SRC_DIR)/pl_kernels/sender_receiver.cpp
 	$(ECHO) "Compiling Kernel: sender_receiver"
 	mkdir -p $(TEMP_DIR)
 	$(VPP) -c $(VPP_FLAGS_sender_receiver) $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) -k sender_receiver -I'$(<D)' --temp_dir $(TEMP_DIR) --report_dir $(TEMP_REPORT_DIR) -o'$@' '$<'
@@ -110,7 +110,7 @@ BINARY_CONTAINERS_DEPS += $(AIE_CONTAINER)
 
 
 
-$(AIE_CONTAINER): $(SRC_DIR)/aie/graph.cpp 
+$(AIE_CONTAINER): $(SRC_DIR)/aie/graph.cpp
 	$(ECHO) "Compiling: libadf.a"
 	mkdir -p $(dir $@)
 	$(AIECXX) $(AIE_CXXFLAGS) $^
@@ -119,13 +119,13 @@ $(AIE_CONTAINER): $(SRC_DIR)/aie/graph.cpp
 
 
 .PHONY: help
-help:  
+help:
 	@echo "Makefile Usage:"
 	@echo "make all PLATFORM= <xpfm_file_location>"
-	@echo "Command to build xclbin application" 
+	@echo "Command to build xclbin application"
 	@echo ""
 	@echo "make clean"
-	@echo "Command to remove the generated files. " 
+	@echo "Command to remove the generated files. "
 	@echo ""
 
 
@@ -134,8 +134,8 @@ clean:
 	-$(RMDIR) $(BUILD_DIR)/*.xclbin *xclbin.run_summary pl*start_simulation. sh *.xclbin
 	-$(RMDIR) _x_temp.*/_x.* _x_temp.*/.Xil _x_temp.*/profile_summary.* xo_* _x*
 	-$(RMDIR) _x_temp.*/dltmp* _x_temp.*/kernel_info.dat _x_temp.*/*.log
-	-$(RMDIR) _x_temp.* .Xil .ipcache .crashReporter  
-	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db 
+	-$(RMDIR) _x_temp.* .Xil .ipcache .crashReporter
+	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db
 	-$(RMDIR) _x_temp.hw.* build_dir.hw.* .nfs*
 	-$(RMDIR) $(CUR_DIR)/Work  $(CUR_DIR)/reports $(BUILD_DIR)
 

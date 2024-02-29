@@ -115,7 +115,7 @@ def deployOverlay() {
             mkdir -p ${DST}
             cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin
             cp -f ${example_dir}/_x/link/int/partial.pdi ${DST}/partial.pdi
-            cp -f ${example_dir}/binary_container_1.xsa ${DST}/${board}-${overlay}.xsa
+            cp -f ${example_dir}/*.xsa ${DST}/${board}-${overlay}.xsa
             cp ${ws}/commitIDs ${DST}
         fi
     '''

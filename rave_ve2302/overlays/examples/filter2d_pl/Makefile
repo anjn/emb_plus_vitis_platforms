@@ -36,7 +36,7 @@ clean: clean-subdirs
 	-$(RM) _xocc* .Xil _x *.o *.xclbin *.BIN *.bif *.pdi
 	-$(RM) .Xil _sds *.xml *.dat *.hpfm iprepo *.xtxt *.xsa
 	-$(RM) sd_card *.log *.rpt .ipcache
-	-$(RM) *.info
+	-$(RM) *.info .crashReporter kernel/.crashReporter
 	-$(RM) *.link_summary* *.package_summary* *.ltx
 
 clean-subdirs:

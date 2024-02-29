@@ -28,10 +28,9 @@ SRC_DIR = .
 TARGET ?= hw
 
 
-TEMP_DIR := _x_temp.$(TARGET).$(PLATFORM_NAME)
-TEMP_REPORT_DIR := $(CUR_DIR)/reports/_x.$(TARGET).$(PLATFORM_NAME)
-BUILD_DIR := build_dir.$(TARGET).$(PLATFORM_NAME)
-BUILD_REPORT_DIR := $(CUR_DIR)/reports/_build.$(TARGET).$(PLATFORM_NAME)
+TEMP_DIR := _x
+TEMP_REPORT_DIR := $(CUR_DIR)/reports/_x
+BUILD_REPORT_DIR := $(CUR_DIR)/reports
 XCLBIN_DIR := $(CUR_DIR)/$(BUILD_DIR)
 export XCL_BINDIR = $(XCLBIN_DIR)
 BINARY_CONTAINERS_DEPS :=
@@ -86,7 +85,6 @@ SEND_REC_XO_FILE = $(TEMP_DIR)/sender_receiver.xo
 all: xclbin
 xclbin:  $(BINARY_CONTAINERS)
 $(BINARY_CONTAINERS): $(PL_CONT_XO_FILE) $(SEND_REC_XO_FILE) $(AIE_CONTAINER)
-	mkdir -p $(BUILD_DIR)
 	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS)  $(VPP_LDFLAGS_emb_plus_pl_controller.xclbin) -o $@ $^
 
 
@@ -131,11 +129,10 @@ help:
 
 .PHONY: clean
 clean:
-	-$(RMDIR) $(BUILD_DIR)/*.xclbin *xclbin.run_summary pl*start_simulation. sh *.xclbin
-	-$(RMDIR) _x_temp.*/_x.* _x_temp.*/.Xil _x_temp.*/profile_summary.* xo_* _x*
-	-$(RMDIR) _x_temp.*/dltmp* _x_temp.*/kernel_info.dat _x_temp.*/*.log
-	-$(RMDIR) _x_temp.* .Xil .ipcache .crashReporter
+	-$(RMDIR) *xclbin.run_summary pl*start_simulation. sh *.xclbin
+	-$(RMDIR)  xo_* _x*
+	-$(RMDIR) .Xil .ipcache .crashReporter
 	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db
-	-$(RMDIR) _x_temp.hw.* build_dir.hw.* .nfs*
+	-$(RMDIR) .nfs* *.xsa *.ltx *.link_summary
 	-$(RMDIR) $(CUR_DIR)/Work  $(CUR_DIR)/reports $(BUILD_DIR)
 

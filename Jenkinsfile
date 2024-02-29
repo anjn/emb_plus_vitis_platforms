@@ -10,6 +10,7 @@ def logCommitIDs() {
     script: '''
         idfile=${ws}/commitIDs
         pushd ${ws}/src
+        echo "src-branch : ${BRANCH_NAME}" >> ${idfile}
         echo -n "src : " >> ${idfile}
         git rev-parse HEAD >> ${idfile}
         subm=($(cat .gitmodules | grep path | cut -d "=" -f2))
@@ -52,13 +53,16 @@ def deployPlatform() {
     sh label: 'platform deploy',
     script: '''
         if [ "${BRANCH_NAME}" == "${deploy_branch}" ]; then
-            pushd ${work_dir}/${board}
-            DST=${DEPLOYDIR}/platforms
-            mkdir -p ${DST}
-            cp -rf platforms/${pfm} ${DST}
-            popd
-            cp ${ws}/commitIDs ${DST}/${pfm}
+            DEPLOYDIR=${DEPLOYDIR}/daily_latest
+        else
+            DEPLOYDIR=${DEPLOYDIR}/pr_latest
         fi
+        pushd ${work_dir}/${board}
+        DST=${DEPLOYDIR}/platforms
+        mkdir -p ${DST}
+        cp -rf platforms/${pfm} ${DST}
+        popd
+        cp ${ws}/commitIDs ${DST}/${pfm}
     '''
 }
 
@@ -66,22 +70,25 @@ def deployPlatformFirmware() {
     sh label: 'platform firmware deploy',
     script: '''
         if [ "${BRANCH_NAME}" == "${deploy_branch}" ]; then
-            pushd ${work_dir}/${board}
-            mkdir -p tmp
-            unzip platforms/${pfm}/hw/${pfm_name}.xsa -d tmp
-            pushd tmp
-            source ${setup} -r ${tool_release} && set -e
-            echo "all: { ${pfm_name}.bit }" > bootgen.bif
-            bootgen -arch zynqmp -process_bitstream bin -image bootgen.bif
-            popd
-            fw=$(echo ${pfm_name} | tr _ -)
-            DST=${DEPLOYDIR}/firmware/${fw}
-            mkdir -p ${DST}
-            cp -f tmp/${pfm_name}.bit ${DST}/${fw}.bit
-            cp -f tmp/${pfm_name}.bit.bin ${DST}/${fw}.bin
-            popd
-            cp ${ws}/commitIDs ${DST}
+            DEPLOYDIR=${DEPLOYDIR}/daily_latest
+        else
+            DEPLOYDIR=${DEPLOYDIR}/pr_latest
         fi
+        pushd ${work_dir}/${board}
+        mkdir -p tmp
+        unzip platforms/${pfm}/hw/${pfm_name}.xsa -d tmp
+        pushd tmp
+        source ${setup} -r ${tool_release} && set -e
+        echo "all: { ${pfm_name}.bit }" > bootgen.bif
+        bootgen -arch zynqmp -process_bitstream bin -image bootgen.bif
+        popd
+        fw=$(echo ${pfm_name} | tr _ -)
+        DST=${DEPLOYDIR}/firmware/${fw}
+        mkdir -p ${DST}
+        cp -f tmp/${pfm_name}.bit ${DST}/${fw}.bit
+        cp -f tmp/${pfm_name}.bit.bin ${DST}/${fw}.bin
+        popd
+        cp ${ws}/commitIDs ${DST}
     '''
 }
 
@@ -108,16 +115,19 @@ def deployOverlay() {
     sh label: 'overlay deploy',
     script: '''
         if [ "${BRANCH_NAME}" == "${deploy_branch}" ]; then
-            if [ "${silicon}" != "prod" ]; then
-                board=${board}_${silicon}
-            fi
-            DST=${DEPLOYDIR}/firmware/${board}-${overlay}
-            mkdir -p ${DST}
-            cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin
-            cp -f ${example_dir}/_x/link/int/partial.pdi ${DST}/partial.pdi
-            cp -f ${example_dir}/*.xsa ${DST}/${board}-${overlay}.xsa
-            cp ${ws}/commitIDs ${DST}
+            DEPLOYDIR=${DEPLOYDIR}/daily_latest
+        else
+            DEPLOYDIR=${DEPLOYDIR}/pr_latest
         fi
+        if [ "${silicon}" != "prod" ]; then
+            board=${board}_${silicon}
+        fi
+        DST=${DEPLOYDIR}/firmware/${board}-${overlay}
+        mkdir -p ${DST}
+        cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin
+        cp -f ${example_dir}/_x/link/int/partial.pdi ${DST}/partial.pdi
+        cp -f ${example_dir}/*.xsa ${DST}/${board}-${overlay}.xsa
+        cp ${ws}/commitIDs ${DST}
     '''
 }
 

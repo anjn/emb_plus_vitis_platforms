@@ -10,6 +10,7 @@ PYTHON = python3
 VIV_PRJ_DIR = project
 VIV_SCRIPTS_DIR = scripts
 
+PLATFORM_JSON = ./platform.json
 META_JSON =  $(VIV_PRJ_DIR)/partition_metadata.json
 META_PY = $(VIV_SCRIPTS_DIR)/partition_metadata_gen_script.py
 
@@ -29,7 +30,9 @@ endif
 VIV_XSA = $(VIV_PRJ_DIR)/$(VIV_DESIGN).xsa
 VIV_SRC = $(VIV_SCRIPTS_DIR)/main.tcl
 VIV_CONFIG = $(VIV_SCRIPTS_DIR)/config_bd.tcl
+VIV_ULP = $(VIV_SCRIPTS_DIR)/ulp.tcl
 VIV_PDI = $(VIV_PRJ_DIR)/$(VIV_DESIGN).runs/impl_1/$(VIV_DESIGN)_i_ulp_ulp_inst_0_partial.pdi
+
 
 .PHONY: help
 help:
@@ -52,8 +55,8 @@ xsa: $(VIV_XSA)
 $(VIV_XSA): $(VIV_SRC) $(VIV_CONFIG)
 	$(VIVADO) -mode batch -notrace -source $(VIV_SRC) -tclargs -jobs $(JOBS) -silicon $(SILICON) -uuid $(UUID)
 	@grep $(VIV_TIMING_ERROR) vivado.log; if [ $$? = 0 ]; then exit 1; fi
-	$(PYTHON) $(META_PY) -config $(VIV_CONFIG) -pdi $(VIV_PDI) -uuid $(UUID) -o $(META_JSON)
-	zip -u $(VIV_PRJ_DIR)/$(VIV_DESIGN)_base.xsa $(META_JSON)
+	$(PYTHON) $(META_PY) -config $(VIV_CONFIG) -pdi $(VIV_PDI) -uuid $(UUID) -ulp $(VIV_ULP) -o $(META_JSON)
+	zip -u $(VIV_PRJ_DIR)/$(VIV_DESIGN)_base.xsa $(META_JSON) $(PLATFORM_JSON)
 
 .PHONY: clean
 clean:

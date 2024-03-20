@@ -3,12 +3,11 @@
 
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 1
+VERSION = 1.0
 CURDIR = $(shell pwd)
 SRC = ./src
 RM = rm -rf
 MV = mv
-BOARD_NAME = emb_plus
 
 # Kernel name
 KERNEL ?= bandwidth
@@ -29,23 +28,48 @@ VPP_LINK_FLAGS = -l -t hw --platform $(PLATFORM) --save-temps \
 	--temp_dir ./_x
 
 # XSA file name
-
 XSA_FILE = $(KERNEL).link.xsa
+
+# deb package script location
+SILICON ?= prod
+MAINTAINER = AMD
+BOARD = ve2302
+BUILD_DIR = xrt-$(KERNEL)-dma-test-$(BOARD)-$(SILICON)
+PKGNAME = $(BUILD_DIR)_$(VERSION)
+CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
+CONTROL_CONTENT = "Package: $(BUILD_DIR)\nArchitecture: all\nVersion: $(VERSION)\nPriority: optional\nDescription: $(KERNEL) firmware\nMaintainer: $(MAINTAINER)\n"
+DEB_FILE = $(PKGNAME).deb
+TEMP_DIR = _x
+BINARY_CONTAINER = $(TEMP_DIR)/link/int/$(KERNEL).link.xclbin
 
 
 # Rules
 .PHONY: all
-all: $(SRC_FILE) $(KERNEL_XO) $(XSA_FILE)
+all: $(SRC_FILE) $(KERNEL_XO) $(XSA_FILE) $(DEB_FILE)
+
 $(KERNEL_XO): $(SRC_FILE)
 	@mkdir -p $(@D)
 	-@$(RM) $@
 	$(VPP) $(VPP_XO_FLAGS) -o $@ $<
 	-@$(RM) .Xil
 
-
+.PHONY: xclbin
+xclbin: $(BINARY_CONTAINER)
+$(BINARY_CONTAINER): $(XSA_FILE)
 $(XSA_FILE): $(KERNEL_XO)
 	$(VPP) $(VPP_LINK_FLAGS) -o $@ $(+)
 	-@$(RM) .Xill
+
+.PHONY: deb
+deb: $(DEB_FILE)
+$(DEB_FILE): $(BINARY_CONTAINER)
+	mkdir -p $(BUILD_DIR)/opt/xilinx/$(KERNEL)
+	mkdir -p $(BUILD_DIR)/DEBIAN
+	cp $^ $(BUILD_DIR)/opt/xilinx/$(KERNEL)/
+	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
+	@echo "Now generating the debian package"
+	dpkg-deb --build ./$(BUILD_DIR)
+	mv $(BUILD_DIR).deb $(DEB_FILE)
 
 .PHONY: help
 help:
@@ -65,5 +89,7 @@ clean:
 	-$(RM) *.info .crashReporter .ipcache
 	-$(RM) ./_x.*
 	-$(RM) *.link_summary* *.package_summary* *.ltx
+	-$(RM) $(BUILD_DIR) $(DEB_FILE)
+
 
 

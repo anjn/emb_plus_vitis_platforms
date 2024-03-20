@@ -3,7 +3,7 @@
 
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 1
+VERSION = 1.0
 
 CURDIR = $(shell pwd)
 SRC = $(CURDIR)/src
@@ -26,8 +26,6 @@ SRC_DIR = .
 
 # setting devault value
 TARGET ?= hw
-
-
 TEMP_DIR := _x
 TEMP_REPORT_DIR := $(CUR_DIR)/reports/_x
 BUILD_REPORT_DIR := $(CUR_DIR)/reports
@@ -38,6 +36,18 @@ BINARY_CONTAINERS_DEPS :=
 VPP_FLAGS += --save-temps
 VPP_LDFLAGS += --optimize 2 -R 2
 VPP_FLAGS += $(EXTRA_VPP_FLAGS)
+
+## deb package script location
+SILICON ?= prod
+MAINTAINER = AMD
+BOARD = ve2302
+EXAMPLE = validate-aie2pl
+BUILD_DIR = xrt-aie-test-$(BOARD)-$(SILICON)
+PKGNAME = $(BUILD_DIR)_$(VERSION)
+CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
+CONTROL_CONTENT = "Package: $(BUILD_DIR)\nArchitecture: all\nVersion: $(VERSION)\nPriority: optional\nDescription: $(EXAMPLE) firmware\nMaintainer: $(MAINTAINER)\n"
+DEB_FILE = $(PKGNAME).deb
+XCLBIN_FILE = $(TEMP_DIR)/link/int/pl_controller.xclbin
 
 # aie template
 XILINX_VITIS_AIETOOLS ?=
@@ -82,12 +92,12 @@ SEND_REC_XO_FILE = $(TEMP_DIR)/sender_receiver.xo
 ############################## Setting Targets ##############################
 
 .PHONY: all xclbin
-all: xclbin
-xclbin:  $(BINARY_CONTAINERS)
+all: xclbin $(DEB_FILE)
+
+xclbin: $(BINARY_CONTAINERS_PKG)
+$(BINARY_CONTAINERS_PKG): $(BINARY_CONTAINERS)
 $(BINARY_CONTAINERS): $(PL_CONT_XO_FILE) $(SEND_REC_XO_FILE) $(AIE_CONTAINER)
 	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS)  $(VPP_LDFLAGS_emb_plus_pl_controller.xclbin) -o $@ $^
-
-
 
 ################ Setting Rules for Binary Containers (Building Kernels) ################
 $(PL_CONT_XO_FILE): $(SRC_DIR)/pl_kernels/pl_controller_top.cpp
@@ -95,7 +105,6 @@ $(PL_CONT_XO_FILE): $(SRC_DIR)/pl_kernels/pl_controller_top.cpp
 	mkdir -p $(TEMP_DIR)
 	$(VPP) -c $(VPP_FLAGS_pl_controller_top) $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) -k pl_controller_top -I'$(<D)' --temp_dir $(TEMP_DIR) --report_dir $(TEMP_REPORT_DIR) -o'$@' '$<'
 BINARY_CONTAINER_emb_plus_pl_controller.xclbin_OBJS += $(TEMP_DIR)/pl_controller_top.xo
-
 
 $(SEND_REC_XO_FILE): $(SRC_DIR)/pl_kernels/sender_receiver.cpp
 	$(ECHO) "Compiling Kernel: sender_receiver"
@@ -105,16 +114,22 @@ BINARY_CONTAINER_emb_plus_pl_controller.xclbin_OBJS += $(TEMP_DIR)/sender_receiv
 BINARY_CONTAINERS_DEPS += $(BINARY_CONTAINER_emb_plus_pl_controller.xclbin_OBJS)
 BINARY_CONTAINERS_DEPS += $(AIE_CONTAINER)
 
-
-
-
 $(AIE_CONTAINER): $(SRC_DIR)/aie/graph.cpp
 	$(ECHO) "Compiling: libadf.a"
 	mkdir -p $(dir $@)
 	$(AIECXX) $(AIE_CXXFLAGS) $^
 	cp ./libadf.a $(AIE_CONTAINER)
 
-
+.PHONY: deb
+deb: $(DEB_FILE)
+$(DEB_FILE): $(XCLBIN_FILE)
+	mkdir -p $(BUILD_DIR)/opt/xilinx/$(EXAMPLE)
+	mkdir -p $(BUILD_DIR)/DEBIAN
+	cp $^ $(BUILD_DIR)/opt/xilinx/$(EXAMPLE)/
+	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
+	@echo "Now generating the debian package"
+	dpkg-deb --build ./$(BUILD_DIR)
+	mv $(BUILD_DIR).deb $(DEB_FILE)
 
 .PHONY: help
 help:
@@ -135,4 +150,5 @@ clean:
 	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db
 	-$(RMDIR) .nfs* *.xsa *.ltx *.link_summary
 	-$(RMDIR) $(CUR_DIR)/Work  $(CUR_DIR)/reports $(BUILD_DIR)
+	-$(RMDIR) $(BUILD_DIR) $(DEB_FILE)
 

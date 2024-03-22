@@ -98,9 +98,9 @@ def buildOverlay() {
         pushd ${work_dir}/${board}
         if [ -d platforms/${pfm} ]; then
             echo "Using platform from local build"
-        elif [ -d ${DEPLOYDIR}/platforms/${pfm} ]; then
+        elif [ -d ${DEPLOYDIR}/daily_latest/platforms/${pfm} ]; then
             echo "Using platform from build artifacts"
-            ln -s ${DEPLOYDIR}/platforms/${pfm} platforms/
+            ln -s ${DEPLOYDIR}/daily_latest/platforms/${pfm} platforms/
         else
             echo "No valid platform found: ${pfm}"
             exit 1

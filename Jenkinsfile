@@ -106,7 +106,8 @@ def buildOverlay() {
             exit 1
         fi
         source ${setup} -r ${tool_release} && set -e
-        ${lsf} make overlay OVERLAY=${overlay} SILICON=${silicon}
+        bsub -R "select[osdistro==ubuntu]" -R "rusage[mem=${PAEG_LSF_MEM}]" -Is -q sil_ssw \
+            make overlay OVERLAY=${overlay} SILICON=${silicon}
         popd
     '''
 }
@@ -127,6 +128,7 @@ def deployOverlay() {
         cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin
         cp -f ${example_dir}/_x/link/int/partial.pdi ${DST}/${board}-${overlay}.pdi
         cp -f ${example_dir}/*.xsa ${DST}/${board}-${overlay}.xsa
+        cp -f ${example_dir}/*.deb ${DST}
         cp ${ws}/commitIDs ${DST}
     '''
 }

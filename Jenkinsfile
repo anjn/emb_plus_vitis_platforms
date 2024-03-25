@@ -58,11 +58,11 @@ def deployPlatform() {
             DEPLOYDIR=${DEPLOYDIR}/pr_latest
         fi
         pushd ${work_dir}/${board}
-        DST=${DEPLOYDIR}/platforms
-        mkdir -p ${DST}
-        cp -rf platforms/${pfm} ${DST}
+        DSTDIR=${DEPLOYDIR}/platforms
+        mkdir -p ${DSTDIR}/${pfm}
+        cp ${ws}/commitIDs platforms/${pfm}
+        rsync -avh --delete platforms/${pfm}/ ${DSTDIR}/${pfm}/
         popd
-        cp ${ws}/commitIDs ${DST}/${pfm}
     '''
 }
 
@@ -83,12 +83,15 @@ def deployPlatformFirmware() {
         bootgen -arch zynqmp -process_bitstream bin -image bootgen.bif
         popd
         fw=$(echo ${pfm_name} | tr _ -)
-        DST=${DEPLOYDIR}/firmware/${fw}
-        mkdir -p ${DST}
-        cp -f tmp/${pfm_name}.bit ${DST}/${fw}.bit
-        cp -f tmp/${pfm_name}.bit.bin ${DST}/${fw}.bin
+        DSTDIR=${DEPLOYDIR}/firmware/${fw}
+        mkdir -p ${DSTDIR}
+        TMPDIR=$(mktemp -d -p .)
+        chmod go+rx ${TMPDIR}
+        cp -f tmp/${pfm_name}.bit ${TMPDIR}/${fw}.bit
+        cp -f tmp/${pfm_name}.bit.bin ${TMPDIR}/${fw}.bin
+        cp ${ws}/commitIDs ${TMPDIR}
+        rsync -avh --delete ${TMPDIR}/ ${DSTDIR}/
         popd
-        cp ${ws}/commitIDs ${DST}
     '''
 }
 
@@ -98,15 +101,16 @@ def buildOverlay() {
         pushd ${work_dir}/${board}
         if [ -d platforms/${pfm} ]; then
             echo "Using platform from local build"
-        elif [ -d ${DEPLOYDIR}/platforms/${pfm} ]; then
+        elif [ -d ${DEPLOYDIR}/daily_latest/platforms/${pfm} ]; then
             echo "Using platform from build artifacts"
-            ln -s ${DEPLOYDIR}/platforms/${pfm} platforms/
+            ln -s ${DEPLOYDIR}/daily_latest/platforms/${pfm} platforms/
         else
             echo "No valid platform found: ${pfm}"
             exit 1
         fi
         source ${setup} -r ${tool_release} && set -e
-        ${lsf} make overlay OVERLAY=${overlay} SILICON=${silicon}
+        bsub -R "select[osdistro==ubuntu]" -R "rusage[mem=${PAEG_LSF_MEM}]" -Is -q sil_ssw \
+            make overlay OVERLAY=${overlay} SILICON=${silicon}
         popd
     '''
 }
@@ -122,12 +126,16 @@ def deployOverlay() {
         if [ "${silicon}" != "prod" ]; then
             board=${board}_${silicon}
         fi
-        DST=${DEPLOYDIR}/firmware/${board}-${overlay}
-        mkdir -p ${DST}
-        cp -f ${example_dir}/_x/link/int/*.xclbin ${DST}/${board}-${overlay}.xclbin
-        cp -f ${example_dir}/_x/link/int/partial.pdi ${DST}/partial.pdi
-        cp -f ${example_dir}/*.xsa ${DST}/${board}-${overlay}.xsa
-        cp ${ws}/commitIDs ${DST}
+        DSTDIR=${DEPLOYDIR}/firmware/${board}-${overlay}
+        mkdir -p ${DSTDIR}
+        TMPDIR=$(mktemp -d -p .)
+        chmod go+rx ${TMPDIR}
+        cp -f ${example_dir}/_x/link/int/*.xclbin ${TMPDIR}/${board}-${overlay}.xclbin
+        cp -f ${example_dir}/_x/link/int/partial.pdi ${TMPDIR}/${board}-${overlay}.pdi
+        cp -f ${example_dir}/*.xsa ${TMPDIR}/${board}-${overlay}.xsa
+        cp -f ${example_dir}/*.deb ${TMPDIR}
+        cp ${ws}/commitIDs ${TMPDIR}
+        rsync -avh --delete ${TMPDIR}/ ${DSTDIR}/
     '''
 }
 

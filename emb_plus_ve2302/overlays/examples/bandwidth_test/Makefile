@@ -28,7 +28,7 @@ VPP_LINK_FLAGS = -l -t hw --platform $(PLATFORM) --save-temps \
 	--temp_dir ./_x
 
 # XSA file name
-XSA_FILE = $(KERNEL).link.xsa
+XSA_FILE = $(KERNEL).xsa
 
 # deb package script location
 SILICON ?= prod
@@ -40,7 +40,7 @@ CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
 CONTROL_CONTENT = "Package: $(BUILD_DIR)\nArchitecture: all\nVersion: $(VERSION)\nPriority: optional\nDescription: $(KERNEL) firmware\nMaintainer: $(MAINTAINER)\n"
 DEB_FILE = $(PKGNAME).deb
 TEMP_DIR = _x
-BINARY_CONTAINER = $(TEMP_DIR)/link/int/$(KERNEL).link.xclbin
+BINARY_CONTAINER = $(TEMP_DIR)/link/int/$(KERNEL).xclbin
 
 
 # Rules
@@ -63,9 +63,9 @@ $(XSA_FILE): $(KERNEL_XO)
 .PHONY: deb
 deb: $(DEB_FILE)
 $(DEB_FILE): $(BINARY_CONTAINER)
-	mkdir -p $(BUILD_DIR)/opt/xilinx/$(KERNEL)
+	mkdir -p $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	mkdir -p $(BUILD_DIR)/DEBIAN
-	cp $^ $(BUILD_DIR)/opt/xilinx/$(KERNEL)/
+	cp $^ $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

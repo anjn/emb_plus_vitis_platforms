@@ -16,9 +16,9 @@ XBU_FLAGS = --remove-section BITSTREAM --force
 
 # kernels and xclbin
 KERNEL_OBJS += kernel/filter2d_pl_accel/filter2d_pl_accel.xo
-BINARY_CONTAINER = binary_container_1.xclbin
+BINARY_CONTAINER = filter2d_pl.xclbin
 XCLBIN_FILE = _x/link/int/$(BINARY_CONTAINER)
-XSA_FILE = binary_container_1.xsa
+XSA_FILE = filter2d_pl.xsa
 CLK_FREQ = 299996999
 
 
@@ -51,9 +51,9 @@ $(KERNEL_OBJS):
 .PHONY: deb
 deb: $(DEB_FILE)
 $(DEB_FILE): $(XCLBIN_FILE)
-	mkdir -p $(BUILD_DIR)/opt/xilinx/$(EXAMPLE)
+	mkdir -p $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	mkdir -p $(BUILD_DIR)/DEBIAN
-	cp $^ $(BUILD_DIR)/opt/xilinx/$(EXAMPLE)/
+	cp $^ $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

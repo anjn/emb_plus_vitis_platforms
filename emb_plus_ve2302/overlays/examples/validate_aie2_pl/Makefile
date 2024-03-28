@@ -88,7 +88,7 @@ BINARY_CONTAINER_OBJS += $(PL_CONT_XO_FILE)
 BINARY_CONTAINER_OBJS += $(SEND_REC_XO_FILE)
 BINARY_CONTAINER_DEPS += $(BINARY_CONTAINER_OBJS)
 BINARY_CONTAINER_DEPS += $(AIE_CONTAINER)
-BINARY_CONTAINER = pl_controller
+BINARY_CONTAINER = pl_controller_aie
 XSA_FILE = $(BINARY_CONTAINER).xsa
 XCLBIN_FILE = $(TEMP_DIR)/link/int/$(BINARY_CONTAINER).xclbin
 
@@ -122,9 +122,9 @@ $(AIE_CONTAINER): $(SRC_DIR)/aie/graph.cpp
 .PHONY: deb
 deb: $(DEB_FILE)
 $(DEB_FILE): $(XCLBIN_FILE)
-	mkdir -p $(BUILD_DIR)/opt/xilinx/$(EXAMPLE)
+	mkdir -p $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	mkdir -p $(BUILD_DIR)/DEBIAN
-	cp $^ $(BUILD_DIR)/opt/xilinx/$(EXAMPLE)/
+	cp $^ $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

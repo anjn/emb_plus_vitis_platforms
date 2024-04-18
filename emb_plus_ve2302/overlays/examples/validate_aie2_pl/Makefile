@@ -42,7 +42,13 @@ SILICON ?= prod
 MAINTAINER = AMD
 BOARD = ve2302
 EXAMPLE = validate-aie2pl
-BUILD_DIR = xrt-aie-test-$(BOARD)-$(SILICON)
+ifeq ($(SILICON),es1)
+	BUILD_DIR = xrt-aie-test-$(BOARD)-$(SILICON)
+	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
+else
+	BUILD_DIR = xrt-aie-test-$(BOARD)
+	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
+endif 
 PKGNAME = $(BUILD_DIR)_$(VERSION)
 CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
 CONTROL_CONTENT = "Package: $(BUILD_DIR)\nArchitecture: all\nVersion: $(VERSION)\nPriority: optional\nDescription: $(EXAMPLE) firmware\nMaintainer: $(MAINTAINER)\n"
@@ -99,6 +105,7 @@ all: xclbin $(DEB_FILE)
 
 xclbin: $(XCLBIN_FILE)
 $(XCLBIN_FILE): $(XSA_FILE)
+	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi --package.defer_aie_run -o $@ $^ 
 $(XSA_FILE): $(BINARY_CONTAINER_OBJS) $(AIE_CONTAINER)
 	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS) -o $@ $^
 
@@ -122,9 +129,9 @@ $(AIE_CONTAINER): $(SRC_DIR)/aie/graph.cpp
 .PHONY: deb
 deb: $(DEB_FILE)
 $(DEB_FILE): $(XCLBIN_FILE)
-	mkdir -p $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
+	mkdir -p $(DEB_DIR)
+	cp $^ $(DEB_DIR)
 	mkdir -p $(BUILD_DIR)/DEBIAN
-	cp $^ $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

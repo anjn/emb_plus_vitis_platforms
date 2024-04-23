@@ -29,7 +29,13 @@ MAINTAINER = AMD
 BOARD = ve2302
 EXAMPLE = filter2d-pl
 CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
-BUILD_DIR = $(EXAMPLE)-$(BOARD)-$(SILICON)
+ifeq ($(SILICON),es1)
+	BUILD_DIR = $(EXAMPLE)-$(BOARD)-$(SILICON)
+	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
+else
+	BUILD_DIR = $(EXAMPLE)-$(BOARD)
+	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
+endif
 CONTROL_CONTENT = "Package: $(BUILD_DIR)\nArchitecture: all\nVersion: $(VERSION)\nPriority: optional\nDescription: $(EXAMPLE) firmware\nMaintainer: $(MAINTAINER)\n"
 PKGNAME = $(BUILD_DIR)_$(VERSION)
 DEB_FILE = $(PKGNAME).deb
@@ -51,9 +57,9 @@ $(KERNEL_OBJS):
 .PHONY: deb
 deb: $(DEB_FILE)
 $(DEB_FILE): $(XCLBIN_FILE)
-	mkdir -p $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
+	mkdir -p $(DEB_DIR)
+	cp $^ $(DEB_DIR)
 	mkdir -p $(BUILD_DIR)/DEBIAN
-	cp $^ $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

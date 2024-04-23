@@ -34,7 +34,14 @@ XSA_FILE = $(KERNEL).xsa
 SILICON ?= prod
 MAINTAINER = AMD
 BOARD = ve2302
-BUILD_DIR = xrt-$(KERNEL)-dma-test-$(BOARD)-$(SILICON)
+ifeq ($(SILICON),es1)
+	BUILD_DIR = xrt-$(KERNEL)-dma-test-$(BOARD)-$(SILICON)
+	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
+else
+	BUILD_DIR = xrt-$(KERNEL)-dma-test-$(BOARD)
+	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
+endif
+
 PKGNAME = $(BUILD_DIR)_$(VERSION)
 CONTROL_FILE = $(BUILD_DIR)/DEBIAN/control
 CONTROL_CONTENT = "Package: $(BUILD_DIR)\nArchitecture: all\nVersion: $(VERSION)\nPriority: optional\nDescription: $(KERNEL) firmware\nMaintainer: $(MAINTAINER)\n"
@@ -63,9 +70,9 @@ $(XSA_FILE): $(KERNEL_XO)
 .PHONY: deb
 deb: $(DEB_FILE)
 $(DEB_FILE): $(BINARY_CONTAINER)
-	mkdir -p $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
+	mkdir -p $(DEB_DIR)
+	cp $^ $(DEB_DIR)
 	mkdir -p $(BUILD_DIR)/DEBIAN
-	cp $^ $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

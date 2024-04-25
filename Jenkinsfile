@@ -493,6 +493,58 @@ pipeline {
                         }
                     }
                 }
+                stage('yuy2_filter2d_plio overlay build') {
+                    environment {
+                        pfm_name="ve2302_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="emb_plus_ve2302"
+                        silicon="prod"
+                        overlay="yuy2_filter2d_plio"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/emb_plus_ve2302/overlays/examples/yuy2_filter2d_plio/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
+                stage('yuy2_filter2d_plio ES1 overlay build') {
+                    environment {
+                        pfm_name="ve2302_es1_pcie_qdma"
+                        pfm="xilinx_${pfm_name}_${pfm_ver}"
+                        work_dir="${ws}/build/${pfm_name}"
+                        board="emb_plus_ve2302"
+                        silicon="es1"
+                        overlay="yuy2_filter2d_plio"
+                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
+                    }
+                    when {
+                        anyOf {
+                            changeset "**/emb_plus_ve2302/overlays/examples/yuy2_filter2d_plio/**"
+                            triggeredBy 'TimerTrigger'
+                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
+                        }
+                    }
+                    steps {
+                        buildOverlay()
+                    }
+                    post {
+                        success {
+                            deployOverlay()
+                        }
+                    }
+                }
             }
         }
     }

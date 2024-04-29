@@ -2,3 +2,7 @@
 	path = common/Vitis_Libraries/vision
 	url = https://gitenterprise.xilinx.com/FaaSApps/xf_opencv.git
 	branch = main
+[submodule "common/xf_opencv"]
+	path = common/xf_opencv
+	url = https://gitenterprise.xilinx.com/FaaSApps/xf_opencv/
+	branch = aie_x86

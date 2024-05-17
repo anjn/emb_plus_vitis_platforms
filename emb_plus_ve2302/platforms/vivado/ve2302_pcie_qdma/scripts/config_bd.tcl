@@ -610,7 +610,8 @@ proc create_hier_cell_ert_support { parentCell nameHier } {
   set_property -dict [ list \
    CONFIG.C_IRQ_CONNECTION {1} \
    CONFIG.C_KIND_OF_INTR.VALUE_SRC {USER} \
-   CONFIG.C_KIND_OF_INTR {0x00000000} \
+   CONFIG.C_KIND_OF_INTR {0x00000001} \
+   CONFIG.C_IRQ_IS_LEVEL {0} \
  ] $axi_intc_0_31
 
   # Create instance: slice_0_15, and set properties
@@ -1397,7 +1398,8 @@ set axi_intc_uart_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc axi
   set_property -dict [ list \
    CONFIG.C_IRQ_CONNECTION {1} \
    CONFIG.C_KIND_OF_INTR.VALUE_SRC {USER} \
-   CONFIG.C_KIND_OF_INTR {0x00000000} \
+   CONFIG.C_KIND_OF_INTR {0x00000001} \
+   CONFIG.C_IRQ_IS_LEVEL {0} \
  ] $axi_intc_uart_apu
 
    set xlconcat_uart_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat xlconcat_uart_apu ]
@@ -1409,13 +1411,9 @@ set axi_intc_gcq_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc axi_
   set_property -dict [ list \
    CONFIG.C_IRQ_CONNECTION {1} \
    CONFIG.C_KIND_OF_INTR.VALUE_SRC {USER} \
-   CONFIG.C_KIND_OF_INTR {0x00000000} \
+   CONFIG.C_KIND_OF_INTR {0x00000001} \
+   CONFIG.C_IRQ_IS_LEVEL {0} \
  ] $axi_intc_gcq_apu
-
-   set xlconcat_gcq_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat xlconcat_gcq_apu ]
-  set_property -dict [ list \
-   CONFIG.NUM_PORTS {4} \
- ] $xlconcat_gcq_apu
 
   # Create interface connections
   connect_bd_intf_net -intf_net axi_firewall_user_M_AXI [get_bd_intf_pins m_axi_user_ctrl] [get_bd_intf_pins axi_firewall_user/M_AXI]
@@ -1502,10 +1500,9 @@ set axi_intc_gcq_apu [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc axi_
   connect_bd_net -net gcq_a2r_irq [get_bd_pins gcq_r2a/irq_cq] [get_bd_pins irq_gcq_a2r]
   connect_bd_net -net gcq_a2u_irq_0 [get_bd_pins gcq_u2a_0/irq_cq] [get_bd_pins pfm_irq_ctlr/irq_in_1]
   connect_bd_net -net gcq_apu_irq [get_bd_pins axi_intc_gcq_apu/irq] [get_bd_pins irq_gcq_apu]
-  connect_bd_net -net gcq_apu_irq_concat [get_bd_pins xlconcat_gcq_apu/dout] [get_bd_pins axi_intc_gcq_apu/intr]
   connect_bd_net -net gcq_m2r_irq [get_bd_pins gcq_m2r/irq_sq] [get_bd_pins irq_gcq_m2r]
   connect_bd_net -net gcq_r2a_irq [get_bd_pins gcq_r2a/irq_sq] [get_bd_pins irq_gcq_r2a]
-  connect_bd_net -net gcq_u2a_irq_0 [get_bd_pins gcq_u2a_0/irq_sq] [get_bd_pins xlconcat_gcq_apu/In0]
+  connect_bd_net -net gcq_u2a_irq_0 [get_bd_pins gcq_u2a_0/irq_sq] [get_bd_pins axi_intc_gcq_apu/intr]
   connect_bd_net -net irq_const_dout [get_bd_pins irq_const/dout] [get_bd_pins pfm_irq_ctlr/irq_in_0]
   connect_bd_net -net irq_const_dout [get_bd_pins irq_const/dout] [get_bd_pins xlconcat_irq_vec/In1]
   connect_bd_net -net irq_const_dout [get_bd_pins irq_const/dout] [get_bd_pins xlconcat_irq_vec/In2]
@@ -2208,7 +2205,7 @@ proc create_hier_cell_blp { parentCell nameHier} {
   create_hier_cell_dfx_decoupling $hier_obj dfx_decoupling
 
   # Create instance: const_vcc, and set properties
-  set const_vcc [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 const_vcc ]
+  set const_vcc [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant const_vcc ]
 
   save_bd_design
 

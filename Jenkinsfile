@@ -144,7 +144,7 @@ pipeline {
         label 'Build_Master'
     }
     environment {
-        deploy_branch="main"
+        deploy_branch="2023.2"
         tool_release="2023.2"
         tool_build="daily_latest"
         auto_branch="2022.1"
@@ -161,7 +161,7 @@ pipeline {
         skipDefaultCheckout true
     }
     triggers {
-        cron(env.BRANCH_NAME == 'main' ? 'H 21 * * *' : '')
+        cron(env.BRANCH_NAME == '2023.2' ? 'H 21 * * *' : '')
     }
     stages {
         stage('Clone Repos') {

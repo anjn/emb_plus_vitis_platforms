@@ -4,7 +4,7 @@
 SHELL = bash
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 1
+VERSION = 0.5
 CURDIR = $(shell pwd)
 REPO_PATH = $(shell dirname $(shell dirname $(shell dirname $(shell dirname $(CURDIR)))))
 COMMON_PATH = $(REPO_PATH)/common
@@ -19,7 +19,7 @@ META_JSON =  $(CURDIR)/filter2d_aie_partition_metadata.json
 
 PLATFORM ?=
 PLATFORM_NAME = $(strip $(patsubst %.xpfm, % , $(shell basename $(PLATFORM))))
-include utils.mk 
+include utils.mk
 
 # v++ flags
 VPP = v++
@@ -45,8 +45,8 @@ XCLBIN_DIR := $(CUR_DIR)/$(BUILD_DIR)
 export XCL_BINDIR = $(XCLBIN_DIR)
 BINARY_CONTAINERS_DEPS :=
 
-VPP_FLAGS += --save-temps 
-VPP_LDFLAGS += --optimize 2 -R 2 
+VPP_FLAGS += --save-temps
+VPP_LDFLAGS += --optimize 2 -R 2
 VPP_LDFLAGS += --kernel_frequency 400
 
 # aie template
@@ -61,7 +61,7 @@ endif
 ############################ setting AIE Compiler ###########################
 
 AIETARGET := hw
-AIE_CXXFLAGS += --target=$(AIETARGET) --platform=$(PLATFORM) --pl-freq=400 -pl-axi-lite=true 
+AIE_CXXFLAGS += --target=$(AIETARGET) --platform=$(PLATFORM) --pl-freq=400 -pl-axi-lite=true
 AIE_CXXFLAGS += -I $(XILINX_VITIS_AIETOOLS)/include
 AIE_CONTAINER = $(TEMP_DIR)/libadf.a
 AIE_CXXFLAGS += -I $(SRC_DIR_1)/aie-ml
@@ -96,7 +96,7 @@ ifeq ($(SILICON),es1)
 else
 	DEB_BUILD_DIR = xrt-filter2d-aie-test-$(BOARD)
 	DEB_DIR = $(DEB_BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
-endif 
+endif
 
 VIV_CONFIG = $(VIV_DIR)/scripts/config_bd.tcl
 VIV_PDI = $(CURDIR)/_x/link/int/partial.pdi
@@ -108,7 +108,7 @@ DEB_FILE = $(PKGNAME).deb
 
 ############################## Setting Targets ##############################
 
-.PHONY: all xclbin 
+.PHONY: all xclbin
 all: xclbin $(XSA_FILE) $(DEB_FILE)
 
 .PHONY: xclbin
@@ -119,12 +119,12 @@ $(XCLBIN_FILE): $(BINARY_CONTAINERS)
 	-@$(RM) $(BINARY_CONTAINERS)
 
 $(BINARY_CONTAINERS): $(XSA_FILE) $(AIE_CONTAINER)
-	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi --package.defer_aie_run -o $@ $^ 
+	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi --package.defer_aie_run -o $@ $^
 
 
-$(XSA_FILE): $(AIE_CONTAINER) 
+$(XSA_FILE): $(AIE_CONTAINER)
 	mkdir -p $(BUILD_DIR)
-	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS)  -o $@ $^ 
+	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS)  -o $@ $^
 	cp $(XSA_FILE) ./
 
 ################ Setting Rules for Binary Containers (Building Kernels) ################
@@ -152,13 +152,13 @@ $(DEB_FILE): $(XCLBIN_FILE)
 
 
 .PHONY: help
-help:  
+help:
 	@echo "Makefile Usage:"
 	@echo "make all PLATFORM= <xpfm_file_location>"
-	@echo "Command to build xclbin application and deb package" 
+	@echo "Command to build xclbin application and deb package"
 	@echo ""
 	@echo "make clean"
-	@echo "Command to remove the generated files. " 
+	@echo "Command to remove the generated files. "
 	@echo ""
 
 
@@ -167,9 +167,9 @@ clean:
 	-$(RMDIR) $(BUILD_DIR)/*.xclbin *xclbin.run_summary pl*start_simulation. sh *.xclbin
 	-$(RMDIR) _x_temp.*/_x.* _x_temp.*/.Xil _x_temp.*/profile_summary.* xo_* _x*
 	-$(RMDIR) _x_temp.*/dltmp* _x_temp.*/kernel_info.dat _x_temp.*/*.log
-	-$(RMDIR) _x_temp.* .Xil .ipcache .crashReporter  
-	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db 
-	-$(RMDIR) _x_temp.hw.* build_dir.hw.* 
+	-$(RMDIR) _x_temp.* .Xil .ipcache .crashReporter
+	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db
+	-$(RMDIR) _x_temp.hw.* build_dir.hw.*
 	-$(RMDIR) $(CUR_DIR)/Work  $(CUR_DIR)/reports $(BUILD_DIR)
 	-$(RMDIR) $(DEB_BUILD_DIR) $(DEB_FILE)
 	-$(RMDIR) $(META_JSON) *data.txt

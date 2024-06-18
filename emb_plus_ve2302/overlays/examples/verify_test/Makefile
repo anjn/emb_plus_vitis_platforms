@@ -4,7 +4,7 @@
 SHELL = bash
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 1.0
+VERSION = 0.5
 CURDIR = $(shell pwd)
 REPO_PATH = $(shell dirname $(shell dirname $(shell dirname $(shell dirname $(CURDIR)))))
 COMMON_PATH = $(REPO_PATH)/common
@@ -15,7 +15,7 @@ PYTHON = python3
 META_GEN = $(COMMON_PATH)/gen_metadata.py
 VIV_DIR = $(REPO_PATH)/emb_plus_ve2302/platforms/vivado/ve2302_pcie_qdma
 META_JSON =  $(CURDIR)/$(KERNEL)_partition_metadata.json
-XUTIL = xclbinutil 
+XUTIL = xclbinutil
 
 # Kernel name
 KERNEL ?= verify
@@ -48,7 +48,7 @@ ifeq ($(SILICON),es1)
 else
 	BUILD_DIR = xrt-$(KERNEL)-test-$(BOARD)
 	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
-endif 
+endif
 
 VIV_CONFIG = $(VIV_DIR)/scripts/config_bd.tcl
 VIV_PDI = $(CURDIR)/_x/link/int/partial.pdi

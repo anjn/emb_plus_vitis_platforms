@@ -1,6 +1,8 @@
 # Copyright (C) 2023 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
+SHELL = bash
+
 RM = rm -rf
 MV = mv
 CURDIR = $(shell pwd)
@@ -74,6 +76,7 @@ $(DEB_FILE): $(XCLBIN_FILE)
 	mkdir -p $(DEB_DIR)
 	cp $^ $(DEB_DIR)
 	mkdir -p $(BUILD_DIR)/DEBIAN
+	chmod 00755 $(BUILD_DIR)/DEBIAN
 	@echo -e $(CONTROL_CONTENT) > $(CONTROL_FILE)
 	@echo "Now generating the debian package"
 	dpkg-deb --build ./$(BUILD_DIR)

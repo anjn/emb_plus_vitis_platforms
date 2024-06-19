@@ -4,7 +4,7 @@
 SHELL = bash
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 1.0
+VERSION = 0.5
 CURDIR = $(shell pwd)
 REPO_PATH = $(shell dirname $(shell dirname $(shell dirname $(shell dirname $(CURDIR)))))
 COMMON_PATH = $(REPO_PATH)/common
@@ -51,7 +51,7 @@ ifeq ($(SILICON),es1)
 else
 	BUILD_DIR = xrt-aie-test-$(BOARD)
 	DEB_DIR = $(BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
-endif 
+endif
 
 VIV_CONFIG = $(VIV_DIR)/scripts/config_bd.tcl
 VIV_PDI = $(CURDIR)/_x/link/int/partial.pdi
@@ -118,7 +118,7 @@ $(XCLBIN_FILE): $(BINARY_CONTAINER)
 
 xclbin_cont: $(BINARY_CONTAINER)
 $(BINARY_CONTAINER): $(XSA_FILE)
-	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi --package.defer_aie_run -o $@ $^ 
+	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi --package.defer_aie_run -o $@ $^
 $(XSA_FILE): $(BINARY_CONTAINER_OBJS) $(AIE_CONTAINER)
 	$(VPP) -l $(VPP_FLAGS) -t $(TARGET) --platform $(PLATFORM) --temp_dir $(TEMP_DIR) --report_dir $(BUILD_REPORT_DIR) $(VPP_LDFLAGS) -o $@ $^
 

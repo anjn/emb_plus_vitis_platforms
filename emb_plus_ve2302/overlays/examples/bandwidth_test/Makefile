@@ -4,7 +4,7 @@
 SHELL = bash
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 1.0
+VERSION = 0.5
 CURDIR = $(shell pwd)
 REPO_PATH = $(shell dirname $(shell dirname $(shell dirname $(shell dirname $(CURDIR)))))
 COMMON_PATH = $(REPO_PATH)/common
@@ -14,7 +14,7 @@ MV = mv
 PYTHON = python3
 META_GEN = $(COMMON_PATH)/gen_metadata.py
 VIV_DIR = $(REPO_PATH)/emb_plus_ve2302/platforms/vivado/ve2302_pcie_qdma
-XUTIL = xclbinutil 
+XUTIL = xclbinutil
 
 # Kernel name
 KERNEL ?= bandwidth

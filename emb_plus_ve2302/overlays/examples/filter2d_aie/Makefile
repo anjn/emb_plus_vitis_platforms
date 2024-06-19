@@ -26,13 +26,13 @@ VPP = v++
 AIECXX := aiecompiler
 MK_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CUR_DIR := $(patsubst %/,%,$(dir $(MK_PATH)))
-SRC_DIR_1_RELATIVE = ../../../../common/xf_opencv/L1/include
-SRC_DIR_2_RELATIVE = ../../../../common/xf_opencv/L2/tests/aie-ml/yuy2_filter2d/16bit_aie_8bit_pl
+SRC_DIR_1_RELATIVE = ../../../../common/Vitis_Libraries/vision/L1/include
+SRC_DIR_2_RELATIVE = ../../../../common/Vitis_Libraries/vision/L2/tests/aie-ml/filter2d/16bit_aie_8bit_pl
 
 SRC_DIR_1 = $(realpath $(SRC_DIR_1_RELATIVE))
 SRC_DIR_2 = $(realpath $(SRC_DIR_2_RELATIVE))
 
-XO_SRC_RELATIVE = ../../../../common/xf_opencv/L1/lib/hw/
+XO_SRC_RELATIVE = ../../../../common/Vitis_Libraries/vision/L1/lib/hw/
 XO_SRC = $(realpath $(XO_SRC_RELATIVE))
 
 # setting default value

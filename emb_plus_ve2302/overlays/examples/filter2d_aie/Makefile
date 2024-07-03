@@ -1,14 +1,13 @@
-# Copyright (C) 2023 Advanced Micro Devices, Inc.
+# Copyright (C) 2023-204 Advanced Micro Devices, Inc.
 # SPDX-License-Identifier: MIT
 
 SHELL = bash
 YEAR = $(shell date '+%Y')
 MONTH = $(shell date '+%m')
-VERSION = 0.5
+VERSION = 0.6
 CURDIR = $(shell pwd)
 REPO_PATH = $(shell dirname $(shell dirname $(shell dirname $(shell dirname $(CURDIR)))))
 COMMON_PATH = $(REPO_PATH)/common
-SRC = $(CURDIR)/src
 RMDIR = rm -rf
 MV = mv
 PYTHON = python3
@@ -19,7 +18,6 @@ META_JSON =  $(CURDIR)/filter2d_aie_partition_metadata.json
 
 PLATFORM ?=
 PLATFORM_NAME = $(strip $(patsubst %.xpfm, % , $(shell basename $(PLATFORM))))
-include utils.mk
 
 # v++ flags
 VPP = v++
@@ -27,7 +25,7 @@ AIECXX := aiecompiler
 MK_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 CUR_DIR := $(patsubst %/,%,$(dir $(MK_PATH)))
 SRC_DIR_1_RELATIVE = ../../../../common/Vitis_Libraries/vision/L1/include
-SRC_DIR_2_RELATIVE = ../../../../common/Vitis_Libraries/vision/L2/tests/aie-ml/filter2d/16bit_aie_8bit_pl
+SRC_DIR_2_RELATIVE = ../../../../common/Vitis_Libraries/vision/L2/tests/aie-ml/yuy2_filter2d/16bit_aie_8bit_pl
 
 SRC_DIR_1 = $(realpath $(SRC_DIR_1_RELATIVE))
 SRC_DIR_2 = $(realpath $(SRC_DIR_2_RELATIVE))
@@ -67,6 +65,7 @@ AIE_CONTAINER = $(TEMP_DIR)/libadf.a
 AIE_CXXFLAGS += -I $(SRC_DIR_1)/aie-ml
 AIE_CXXFLAGS += -I $(SRC_DIR_1)/aie
 AIE_CXXFLAGS += -I $(SRC_DIR_2)
+AIE_CXXFLAGS += -I $(CURDIR)
 BINARY_CONTAINERS_DEPS += $(AIE_CONTAINER)
 
 
@@ -75,13 +74,12 @@ BINARY_CONTAINERS_DEPS += $(AIE_CONTAINER)
 VPP_FLAGS +=  -I $(SRC_DIR_1)
 VPP_FLAGS +=  -I $(XILINX_VITIS_AIETOOLS)/include
 VPP_FLAGS +=  -I $(SRC_DIR_2)
+VPP_FLAGS +=  -I $(CURDIR)
 VPP_LDFLAGS +=  --config system.cfg
-VPP_LDFLAGS += --clock.freqHz 400000000:Tiler_top_1  --clock.freqHz 400000000:stitcher_top_1  $(XO_SRC_RELATIVE)/tiler.xo  $(XO_SRC_RELATIVE)/stitcher.xo
-
+VPP_LDFLAGS += --clock.freqHz 300000000:Tiler_top_1  --clock.freqHz 300000000:stitcher_top_1  --clock.defaultTolerance 0.001  $(XO_SRC_RELATIVE)/tiler.xo  $(XO_SRC_RELATIVE)/stitcher.xo
 
 ################### deb package generation variables and binary container global settings ###############
 
-VERSION = 1.0
 SILICON ?= prod
 MAINTAINER = AMD
 BOARD = ve2302
@@ -91,10 +89,10 @@ BINARY_CONTAINERS = $(TEMP_DIR)/link/int/filter2d_aie.xclbin
 XCLBIN_FILE = $(CURDIR)/filter2d_aie.xclbin
 
 ifeq ($(SILICON),es1)
-	DEB_BUILD_DIR = xrt-filter2d-aie-test-$(BOARD)-$(SILICON)
+	DEB_BUILD_DIR = filter2d-aie-$(BOARD)-$(SILICON)
 	DEB_DIR = $(DEB_BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma-$(SILICON)/base/test/
 else
-	DEB_BUILD_DIR = xrt-filter2d-aie-test-$(BOARD)
+	DEB_BUILD_DIR = filter2d-aie-$(BOARD)
 	DEB_DIR = $(DEB_BUILD_DIR)/opt/xilinx/firmware/emb_plus/ve2302_pcie_qdma/base/test/
 endif
 
@@ -108,7 +106,7 @@ DEB_FILE = $(PKGNAME).deb
 
 ############################## Setting Targets ##############################
 
-.PHONY: all xclbin
+.PHONY: all
 all: xclbin $(XSA_FILE) $(DEB_FILE)
 
 .PHONY: xclbin
@@ -116,10 +114,9 @@ xclbin:  $(XCLBIN_FILE)
 $(XCLBIN_FILE): $(BINARY_CONTAINERS)
 	$(PYTHON) $(META_GEN) -config $(VIV_CONFIG) -pdi $(VIV_PDI) -o $(META_JSON)
 	$(XUTIL) --input $^ --add-section PARTITION_METADATA:JSON:$(META_JSON) --output $@
-	-@$(RM) $(BINARY_CONTAINERS)
 
 $(BINARY_CONTAINERS): $(XSA_FILE) $(AIE_CONTAINER)
-	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi --package.defer_aie_run -o $@ $^
+	${VPP} -p -t ${TARGET} -f ${PLATFORM} ${AIE_CONTAINER} --package.boot_mode=ospi -o $@ $^
 
 
 $(XSA_FILE): $(AIE_CONTAINER)
@@ -132,8 +129,8 @@ $(XSA_FILE): $(AIE_CONTAINER)
 BINARY_CONTAINERS_DEPS += $(BINARY_CONTAINER_emb_plus_pl_controller.xclbin_OBJS)
 BINARY_CONTAINERS_DEPS += $(AIE_CONTAINER)
 
-$(AIE_CONTAINER): $(SRC_DIR_2)/graph.cpp $(SRC_DIR_2)/xf_filter2d.cc
-	$(ECHO) "Compiling: libadf.a"
+$(AIE_CONTAINER): graph.cpp
+	@echo "Compiling: libadf.a"
 	mkdir -p $(dir $@)
 	$(AIECXX) $(AIE_CXXFLAGS) $^
 	cp ./libadf.a $(AIE_CONTAINER)
@@ -169,7 +166,7 @@ clean:
 	-$(RMDIR) _x_temp.*/dltmp* _x_temp.*/kernel_info.dat _x_temp.*/*.log
 	-$(RMDIR) _x_temp.* .Xil .ipcache .crashReporter
 	-$(RMDIR) $(CUR_DIR)/libadf.a  *.csv *.log sol.db
-	-$(RMDIR) _x_temp.hw.* build_dir.hw.*
+	-$(RMDIR) _x_temp.hw.* build_dir.hw.* *.BIN *.bin *.xsa *.bif
 	-$(RMDIR) $(CUR_DIR)/Work  $(CUR_DIR)/reports $(BUILD_DIR)
 	-$(RMDIR) $(DEB_BUILD_DIR) $(DEB_FILE)
 	-$(RMDIR) $(META_JSON) *data.txt

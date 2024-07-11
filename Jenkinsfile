@@ -225,7 +225,7 @@ pipeline {
                         anyOf {
                             changeset "**/emb_plus_ve2302/overlays/examples/filter2d_aie/**"
                             triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
+                            triggeredBy 'UserIdCause'
                         }
                     }
                     steps {

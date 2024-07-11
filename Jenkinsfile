@@ -101,9 +101,9 @@ def buildOverlay() {
         pushd ${work_dir}/${board}
         if [ -d platforms/${pfm} ]; then
             echo "Using platform from local build"
-        elif [ -d ${DEPLOYDIR}/daily_latest/platforms/${pfm} ]; then
+        elif [ -d ${DEPLOY_PFM_DIR}/${pfm} ]; then
             echo "Using platform from build artifacts"
-            ln -s ${DEPLOYDIR}/daily_latest/platforms/${pfm} platforms/
+            ln -s ${DEPLOY_PFM_DIR}/${pfm} platforms/
         else
             echo "No valid platform found: ${pfm}"
             exit 1
@@ -153,6 +153,7 @@ pipeline {
         PAEG_LSF_MEM=65536
         PAEG_LSF_QUEUE="long"
         DEPLOYDIR="/wrk/paeg_builds/build-artifacts/emb-plus-vitis-platforms/${tool_release}"
+        DEPLOY_PFM_DIR="/proj/yocto/rave_artifacts/${tool_release}/RAVE_0.5/hw"
     }
     options {
         // don't let the implicit checkout happen
@@ -206,291 +207,10 @@ pipeline {
                         createWorkDir()
                     }
                 }
-                stage('ve2302_es1_pcie_qdma platform build')  {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        work_dir="${ws}/build/${pfm_name}"
-                    }
-                    steps {
-                        createWorkDir()
-                    }
-                }
-            }
-        }
-        stage('Build Platforms') {
-            parallel {
-                stage('ve2302_pcie_qdma platform build')  {
-                    environment {
-                        pfm_base="ve2302_pcie_qdma"
-                        pfm_name="ve2302_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="prod"
-                        pfm_dir="${work_dir}/${board}/platforms/${pfm}"
-                        xpfm="${pfm_dir}/${pfm_name}.xpfm"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                        }
-                    }
-                    steps {
-                        buildPlatform()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_PFM_SUCCESS = '1'
-                            }
-                            deployPlatform()
-                        }
-                    }
-                }
-                stage('ve2302_es1_pcie_qdma platform build')  {
-                    environment {
-                        pfm_base="ve2302_pcie_qdma"
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        pfm_dir="${work_dir}/${board}/platforms/${pfm}"
-                        xpfm="${pfm_dir}/${pfm_name}.xpfm"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/platforms/vivado/ve2302_pcie_qdma/**"
-                            triggeredBy 'TimerTrigger'
-                            triggeredBy 'UserIdCause'
-                        }
-                    }
-                    steps {
-                        buildPlatform()
-                    }
-                    post {
-                        success {
-                            script {
-                                env.VE2302_ES1_PFM_SUCCESS = '1'
-                            }
-                            deployPlatform()
-                        }
-                    }
-                }
             }
         }
         stage('Build Overlays') {
             parallel {
-                stage('filter2d_pl overlay build') {
-                    environment {
-                        pfm_name="ve2302_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="prod"
-                        overlay="filter2d_pl"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/filter2d_pl/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('filter2d_pl ES1 overlay build') {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        overlay="filter2d_pl"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/filter2d_pl/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('verify_test overlay build') {
-                    environment {
-                        pfm_name="ve2302_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="prod"
-                        overlay="verify_test"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/verify_test/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('verify_test ES1 overlay build') {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        overlay="verify_test"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/verify_test/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('bandwidth_test overlay build') {
-                    environment {
-                        pfm_name="ve2302_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="prod"
-                        overlay="bandwidth_test"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/bandwidth_test/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('bandwidth_test ES1 overlay build') {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        overlay="bandwidth_test"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/bandwidth_test/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('validate_aie2_pl overlay build') {
-                    environment {
-                        pfm_name="ve2302_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="prod"
-                        overlay="validate_aie2_pl"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/validate_aie2_pl/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('validate_aie2_pl ES1 overlay build') {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        overlay="validate_aie2_pl"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/validate_aie2_pl/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
                 stage('filter2d_aie overlay build') {
                     environment {
                         pfm_name="ve2302_pcie_qdma"
@@ -506,32 +226,6 @@ pipeline {
                             changeset "**/emb_plus_ve2302/overlays/examples/filter2d_aie/**"
                             triggeredBy 'TimerTrigger'
                             environment name: 'VE2302_PFM_SUCCESS', value: '1'
-                        }
-                    }
-                    steps {
-                        buildOverlay()
-                    }
-                    post {
-                        success {
-                            deployOverlay()
-                        }
-                    }
-                }
-                stage('filter2d_aie ES1 overlay build') {
-                    environment {
-                        pfm_name="ve2302_es1_pcie_qdma"
-                        pfm="xilinx_${pfm_name}_${pfm_ver}"
-                        work_dir="${ws}/build/${pfm_name}"
-                        board="emb_plus_ve2302"
-                        silicon="es1"
-                        overlay="filter2d_aie"
-                        example_dir="${work_dir}/${board}/overlays/examples/${overlay}"
-                    }
-                    when {
-                        anyOf {
-                            changeset "**/emb_plus_ve2302/overlays/examples/filter2d_aie/**"
-                            triggeredBy 'TimerTrigger'
-                            environment name: 'VE2302_ES1_PFM_SUCCESS', value: '1'
                         }
                     }
                     steps {

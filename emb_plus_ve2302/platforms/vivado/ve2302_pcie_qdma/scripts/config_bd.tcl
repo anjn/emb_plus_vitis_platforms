@@ -2124,64 +2124,69 @@ proc create_hier_cell_blp { parentCell nameHier} {
 
 
   # Create instance: qdma_0, and set properties
-  set qdma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:qdma qdma_0 ]
-  set_property -dict [list \
-    CONFIG.MAILBOX_ENABLE {false} \
-    CONFIG.MSI_X_OPTIONS {MSI-X_External} \
-    CONFIG.PF0_MSIX_CAP_TABLE_SIZE_qdma {01F} \
-    CONFIG.PF1_MSIX_CAP_TABLE_SIZE_qdma {01F} \
-    CONFIG.SRIOV_CAP_ENABLE {false} \
-    CONFIG.all_speeds_all_sides {YES} \
-    CONFIG.axi_data_width {256_bit} \
-    CONFIG.axibar_notranslate {false} \
-    CONFIG.axist_bypass_en {true} \
-    CONFIG.axisten_freq {125} \
-    CONFIG.barlite_mb_pf1 {0} \
-    CONFIG.copy_pf0 {false} \
-    CONFIG.csr_axilite_slave {true} \
-    CONFIG.dma_intf_sel_qdma {AXI_MM} \
-    CONFIG.en_axi_st_qdma {false} \
-    CONFIG.en_bridge_slv {false} \
-    CONFIG.mode_selection {Advanced} \
-    CONFIG.num_queues {512} \
-    CONFIG.pf0_Use_Class_Code_Lookup_Assistant_qdma {false} \
-    CONFIG.pf0_bar0_64bit_qdma {true} \
-    CONFIG.pf0_bar0_prefetchable_qdma {true} \
-    CONFIG.pf0_bar0_scale_qdma {Megabytes} \
-    CONFIG.pf0_bar0_size_qdma {256} \
-    CONFIG.pf0_bar0_type_qdma {AXI_Bridge_Master} \
-    CONFIG.pf0_bar2_64bit_qdma {true} \
-    CONFIG.pf0_bar2_prefetchable_qdma {true} \
-    CONFIG.pf0_bar2_scale_qdma {Kilobytes} \
-    CONFIG.pf0_bar2_size_qdma {256} \
-    CONFIG.pf0_bar2_type_qdma {DMA} \
-    CONFIG.pf0_class_code_base_qdma {12} \
-    CONFIG.pf0_class_code_sub_qdma {00} \
-    CONFIG.pf0_device_id {5700} \
-    CONFIG.pf0_pciebar2axibar_0 {0x0000020100000000} \
-    CONFIG.pf0_pciebar2axibar_2 {0x0000000000000000} \
-    CONFIG.pf0_subsystem_id {000e} \
-    CONFIG.pf1_bar0_64bit_qdma {true} \
-    CONFIG.pf1_bar0_prefetchable_qdma {true} \
-    CONFIG.pf1_bar0_scale_qdma {Kilobytes} \
-    CONFIG.pf1_bar0_size_qdma {256} \
-    CONFIG.pf1_bar0_type_qdma {DMA} \
-    CONFIG.pf1_bar2_64bit_qdma {true} \
-    CONFIG.pf1_bar2_prefetchable_qdma {true} \
-    CONFIG.pf1_bar2_scale_qdma {Megabytes} \
-    CONFIG.pf1_bar2_size_qdma {128} \
-    CONFIG.pf1_bar2_type_qdma {AXI_Bridge_Master} \
-    CONFIG.pf1_class_code_base_qdma {12} \
-    CONFIG.pf1_class_code_sub_qdma {00} \
-    CONFIG.pf1_device_id {5701} \
-    CONFIG.pf1_pciebar2axibar_0 {0x0000000000000000} \
-    CONFIG.pf1_pciebar2axibar_2 {0x0000020200000000} \
-    CONFIG.pf1_subsystem_id {000e} \
-    CONFIG.pl_link_cap_max_link_speed {8.0_GT/s} \
-    CONFIG.testname {mm} \
-    CONFIG.tl_pf_enable_reg {2} \
-  ] $qdma_0
-
+### COMMENT OUT TO REPLACE WITH BLACK BOX
+#  set qdma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:qdma qdma_0 ]
+#  set_property -dict [list \
+#    CONFIG.MAILBOX_ENABLE {false} \
+#    CONFIG.MSI_X_OPTIONS {MSI-X_External} \
+#    CONFIG.PF0_MSIX_CAP_TABLE_SIZE_qdma {01F} \
+#    CONFIG.PF1_MSIX_CAP_TABLE_SIZE_qdma {01F} \
+#    CONFIG.SRIOV_CAP_ENABLE {false} \
+#    CONFIG.all_speeds_all_sides {YES} \
+#    CONFIG.axi_data_width {256_bit} \
+#    CONFIG.axibar_notranslate {false} \
+#    CONFIG.axist_bypass_en {true} \
+#    CONFIG.axisten_freq {125} \
+#    CONFIG.barlite_mb_pf1 {0} \
+#    CONFIG.copy_pf0 {false} \
+#    CONFIG.csr_axilite_slave {true} \
+#    CONFIG.dma_intf_sel_qdma {AXI_MM} \
+#    CONFIG.en_axi_st_qdma {false} \
+#    CONFIG.en_bridge_slv {false} \
+#    CONFIG.mode_selection {Advanced} \
+#    CONFIG.num_queues {512} \
+#    CONFIG.pf0_Use_Class_Code_Lookup_Assistant_qdma {false} \
+#    CONFIG.pf0_bar0_64bit_qdma {true} \
+#    CONFIG.pf0_bar0_prefetchable_qdma {true} \
+#    CONFIG.pf0_bar0_scale_qdma {Megabytes} \
+#    CONFIG.pf0_bar0_size_qdma {256} \
+#    CONFIG.pf0_bar0_type_qdma {AXI_Bridge_Master} \
+#    CONFIG.pf0_bar2_64bit_qdma {true} \
+#    CONFIG.pf0_bar2_prefetchable_qdma {true} \
+#    CONFIG.pf0_bar2_scale_qdma {Kilobytes} \
+#    CONFIG.pf0_bar2_size_qdma {256} \
+#    CONFIG.pf0_bar2_type_qdma {DMA} \
+#    CONFIG.pf0_class_code_base_qdma {12} \
+#    CONFIG.pf0_class_code_sub_qdma {00} \
+#    CONFIG.pf0_device_id {5700} \
+#    CONFIG.pf0_pciebar2axibar_0 {0x0000020100000000} \
+#    CONFIG.pf0_pciebar2axibar_2 {0x0000000000000000} \
+#    CONFIG.pf0_subsystem_id {000e} \
+#    CONFIG.pf1_bar0_64bit_qdma {true} \
+#    CONFIG.pf1_bar0_prefetchable_qdma {true} \
+#    CONFIG.pf1_bar0_scale_qdma {Kilobytes} \
+#    CONFIG.pf1_bar0_size_qdma {256} \
+#    CONFIG.pf1_bar0_type_qdma {DMA} \
+#    CONFIG.pf1_bar2_64bit_qdma {true} \
+#    CONFIG.pf1_bar2_prefetchable_qdma {true} \
+#    CONFIG.pf1_bar2_scale_qdma {Megabytes} \
+#    CONFIG.pf1_bar2_size_qdma {128} \
+#    CONFIG.pf1_bar2_type_qdma {AXI_Bridge_Master} \
+#    CONFIG.pf1_class_code_base_qdma {12} \
+#    CONFIG.pf1_class_code_sub_qdma {00} \
+#    CONFIG.pf1_device_id {5701} \
+#    CONFIG.pf1_pciebar2axibar_0 {0x0000000000000000} \
+#    CONFIG.pf1_pciebar2axibar_2 {0x0000020200000000} \
+#    CONFIG.pf1_subsystem_id {000e} \
+#    CONFIG.pl_link_cap_max_link_speed {8.0_GT/s} \
+#    CONFIG.testname {mm} \
+#    CONFIG.tl_pf_enable_reg {2} \
+#  ] $qdma_0
+### ADD BLACK BOX
+  add_files -norecurse src/qdma_wrapper.v
+  add_files -norecurse src/qdma_stub.v
+  update_compile_order -fileset sources_1
+  create_bd_cell -type module -reference qdma_wrapper qdma_0
 
   # Create instance: qdma_0_smc, and set properties
   set qdma_0_smc [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect qdma_0_smc ]
@@ -2512,7 +2517,7 @@ proc create_root_design { parentCell} {
   assign_bd_address -offset 0x020202001000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/blp_logic/hw_discovery/s_axi_ctrl_pf1/reg0] -force
   assign_bd_address -offset 0x020102000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/blp_logic/pf_mailbox/S0_AXI/Reg] -force
   assign_bd_address -offset 0x020202000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/blp_logic/pf_mailbox/S1_AXI/Reg] -force
-  assign_bd_address -offset 0x020107000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/qdma_0/S_AXI_LITE_CSR/CTL0] -force
+  assign_bd_address -offset 0x020107000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/qdma_0/S_AXI_LITE_CSR/reg0] -force
   assign_bd_address -offset 0x020102002000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/blp_logic/uuid_rom/S_AXI/reg0] -force
 
   # Exclude Address Segments
@@ -2563,7 +2568,7 @@ proc create_root_design { parentCell} {
   exclude_bd_addr_seg -offset 0x020102010000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/gcq_m2r/S00_AXI/S00_AXI_Reg]
   exclude_bd_addr_seg -offset 0x020102001000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/hw_discovery/s_axi_ctrl_pf0/reg0]
   exclude_bd_addr_seg -offset 0x020102000000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/pf_mailbox/S0_AXI/Reg]
-  exclude_bd_addr_seg -offset 0x020107000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/qdma_0/S_AXI_LITE_CSR/CTL0]
+  exclude_bd_addr_seg -offset 0x020107000000 -range 0x00004000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/qdma_0/S_AXI_LITE_CSR/reg0]
   exclude_bd_addr_seg -offset 0x020102002000 -range 0x00001000 -target_address_space [get_bd_addr_spaces blp/cips/PMC_NOC_AXI_0] [get_bd_addr_segs blp/blp_logic/uuid_rom/S_AXI/reg0]
   exclude_bd_addr_seg -target_address_space [get_bd_addr_spaces blp/qdma_0/M_AXI_BRIDGE] [get_bd_addr_segs blp/axi_noc_mc_1x/S06_INI/C3_DDR_CH1]
 

@@ -54,6 +54,7 @@ import_files -fileset constrs_1 $xdc_list
 
 set_property ip_repo_paths $ip_repo_path [current_project]
 update_ip_catalog
+config_ip_cache -import_from_project -use_cache_location cache
 
 source $bd_tcl_dir/ulp.tcl
 source $bd_tcl_dir/config_bd.tcl
@@ -110,6 +111,15 @@ create_pr_configuration -name config_1 -partitions [list ${proj_name}_i/${userBD
 set_property PR_CONFIGURATION config_1 [get_runs impl_1]
 
 set_property strategy Performance_Auto_3 [get_runs impl_1]
+
+# Synthesize
+launch_runs synth_1 -jobs $jobs
+wait_on_run synth_1
+
+# Replace the black box with the synthesized netlist
+open_run synth_1 -name synth_1 -pr_config [current_pr_configuration]
+read_checkpoint -cell [get_cells */blp/qdma_0/inst/inst] ./src/qdma.dcp
+close_design
 
 launch_runs impl_1 -to_step write_device_image -jobs $jobs
 wait_on_run impl_1

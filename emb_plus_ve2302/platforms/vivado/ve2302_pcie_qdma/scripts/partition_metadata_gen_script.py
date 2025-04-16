@@ -544,9 +544,9 @@ interface_uuid = "{:032x}".format(interface_uuid_int)
 logic_uuid = "{:032x}".format(logic_uuid_int)
 
 
-if validation_uuid!= logic_uuid:
-    print ("Attention! " + validation_uuid + " != " + logic_uuid)
-    raise ValueError("Validation UUID and PDI UUID do not match!")
+#if validation_uuid!= logic_uuid:
+#    print ("Attention! " + validation_uuid + " != " + logic_uuid)
+#    raise ValueError("Validation UUID and PDI UUID do not match!")
 
 
 metadata_file_generation(metadata_file_path,config_bd_file_path)

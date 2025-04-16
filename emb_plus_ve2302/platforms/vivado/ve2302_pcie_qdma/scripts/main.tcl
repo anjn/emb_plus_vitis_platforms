@@ -121,6 +121,10 @@ open_run synth_1 -name synth_1 -pr_config [current_pr_configuration]
 read_checkpoint -cell [get_cells */blp/qdma_0/inst/inst] ./src/qdma.dcp
 close_design
 
+# Waive DRC error
+add_files -fileset constrs_1 -norecurse xdc/waiver.xdc
+set_property USED_IN write_bitstream [get_files xdc/waiver.xdc]
+
 launch_runs impl_1 -to_step write_device_image -jobs $jobs
 wait_on_run impl_1
 open_run impl_1

@@ -119,6 +119,7 @@ wait_on_run synth_1
 # Replace the black box with the synthesized netlist
 open_run synth_1 -name synth_1 -pr_config [current_pr_configuration]
 read_checkpoint -cell [get_cells */blp/qdma_0/inst/inst] ./src/qdma.dcp
+write_checkpoint -force syn.dcp
 close_design
 
 # Waive DRC error

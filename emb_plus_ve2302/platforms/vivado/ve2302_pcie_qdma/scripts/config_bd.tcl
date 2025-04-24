@@ -2303,6 +2303,7 @@ proc create_hier_cell_blp { parentCell nameHier} {
   connect_bd_net -net cips_pmc_axi_noc_axi5_clk [get_bd_pins cips/pmc_axi_noc_axi0_clk] [get_bd_pins axi_noc_ic/aclk5]
   connect_bd_net -net const_vcc_dout [get_bd_pins const_vcc/dout] [get_bd_pins qdma_0/tm_dsc_sts_rdy] -boundary_type upper
   connect_bd_net -net const_vcc_dout [get_bd_pins const_vcc/dout] [get_bd_pins qdma_0/qsts_out_rdy] -boundary_type upper
+  connect_bd_net -net const_vcc_dout [get_bd_pins const_vcc/dout] [get_bd_pins qdma_0/soft_reset_n]
   connect_bd_net -net dfx_decoupling_blp_m_ext_tog_ctrl_kernel_00_enable [get_bd_pins dfx_decoupling/blp_m_ext_tog_ctrl_kernel_00_enable] [get_bd_pins blp_logic/ext_tog_ctrl_kernel_00_enable]
   connect_bd_net -net dfx_decoupling_blp_m_ext_tog_ctrl_kernel_00_in [get_bd_pins dfx_decoupling/blp_m_ext_tog_ctrl_kernel_00_in] [get_bd_pins blp_logic/ext_tog_ctrl_kernel_00_in]
   connect_bd_net -net dfx_decoupling_blp_m_ext_tog_ctrl_kernel_01_enable [get_bd_pins dfx_decoupling/blp_m_ext_tog_ctrl_kernel_01_enable] [get_bd_pins blp_logic/ext_tog_ctrl_kernel_01_enable]
